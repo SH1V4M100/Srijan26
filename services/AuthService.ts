@@ -107,16 +107,14 @@ const checkAuthentication = async (redirectUrl = "") => {
 
 const checkAdminAuthorization = async () => {
   const session = await auth();
-  if (
-    !session ||
-    !session.user ||
-    !session.user.id ||
-    session.user.role !== "ADMIN"
-  )
-    redirect("/signin");
+
+  if (!session || !session.user || session.user.role !== "ADMIN") {
+    redirect("/admin/login");
+  }
 
   return session.user;
 };
+
 
 const checkRegistrationStatus = async (id: string | undefined) => {
   if (!id) return { emailVerified: null, registrationComplete: false };
