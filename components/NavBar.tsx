@@ -8,7 +8,7 @@ export default function NavBar() {
   const { isOpen: _, toggle } = useMobileNavContext();
 
   return (
-    <nav className="flex justify-between  py-8 px-4 h-fit">
+    <nav className="full-bleed flex justify-between py-8 px-4 h-fit">
       <div className="flex gap-4">
         <Image
           src="/images/srijan-thumbnail.svg"
