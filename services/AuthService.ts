@@ -1,5 +1,6 @@
 "use server";
-
+import { UserRole } from "@/prisma/generated/prisma/enums";
+import { Prisma } from "@/prisma/generated/prisma/client";
 import { User } from "@/types/types";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/prisma/client";
@@ -68,25 +69,35 @@ const signup = async (user: User, hCaptchaToken: string | null) => {
     if (!validCaptcha)
       return { ok: false, message: "Captcha Verification Failed" };
 
-    if (!user.password) return { ok: false, message: "Password is required" };
+    if (!user.password)
+      return { ok: false, message: "Password is required" };
 
     const existingUser = await getUserByEmail(user.email);
-    if (existingUser) return { ok: false, message: "Email already in use" };
+    if (existingUser)
+      return { ok: false, message: "Email already in use" };
 
-    const password = user.password;
     const hashedPassword = await bcrypt.hash(user.password, 12);
-    user.password = hashedPassword;
 
-    const createdUser = await prisma.user.create({ data: user });
+    const data: Prisma.UserCreateInput = {
+      name: user.name,
+      email: user.email,
+      password: hashedPassword,
 
-    if (!createdUser) return {ok: false, message: "Error in signup"};
-    
+      // NEVER trust input role
+      role: UserRole.USER,
+
+      registrationComplete: false,
+      emailVerified: null,
+    };
+
+    const createdUser = await prisma.user.create({ data });
+
     await signIn("credentials", {
       email: user.email,
-      password: password,
-      redirect: false
+      password: user.password,
+      redirect: false,
     });
-  
+
     return { ok: true, message: "Signup successful" };
   } catch (err) {
     console.error(err);
@@ -108,13 +119,25 @@ const checkAuthentication = async (redirectUrl = "") => {
 const checkAdminAuthorization = async () => {
   const session = await auth();
 
-  if (!session || !session.user || session.user.role !== "ADMIN") {
+  if (  !session ||  !session.user ||  !["ADMIN", "SUPERADMIN"].includes(session.user.role)) {
+  redirect("/admin/login");
+}
+  return session.user;
+};
+
+const checkSuperAdminAuthorization = async () => {
+  const session = await auth();
+
+  if (
+    !session ||
+    !session.user ||
+    session.user.role !== "SUPERADMIN"
+  ) {
     redirect("/admin/login");
   }
 
   return session.user;
 };
-
 
 const checkRegistrationStatus = async (id: string | undefined) => {
   if (!id) return { emailVerified: null, registrationComplete: false };
@@ -143,6 +166,7 @@ export {
   signup,
   checkAuthentication,
   checkAdminAuthorization,
+  checkSuperAdminAuthorization,
   checkRegistrationStatus,
   updateVerification,
   updateRegistrationStatus,

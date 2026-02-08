@@ -1,17 +1,21 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  output   = "./generated/prisma"
 }
 
 datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
+}
+
+/* =======================
+   ENUMS
+======================= */
+
+enum UserRole {
+  USER
+  ADMIN
+  SUPERADMIN
 }
 
 enum GroupStatus {
@@ -53,6 +57,10 @@ enum Foodtype {
   nonveg
 }
 
+/* =======================
+   USER & AUTH
+======================= */
+
 model User {
   id                   String    @id @default(auto()) @map("_id") @db.ObjectId
   name                 String
@@ -65,7 +73,7 @@ model User {
   department           String?
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
-  role                 String    @default("USER")
+  role                 UserRole  @default(USER)
   emailVerified        DateTime?
   registrationComplete Boolean   @default(false)
   verificationToken    String?
@@ -78,7 +86,7 @@ model User {
   workshopIds   String[]       @db.ObjectId
   workshops     Workshop[]     @relation(fields: [workshopIds], references: [id])
   payments      Payment[]      @relation("UserPayments")
-
+  adminEvents          EventAdmin[] @relation("AdminUserEvents")
   @@map("user")
 }
 
@@ -102,30 +110,72 @@ model Account {
   @@map("account")
 }
 
+/* =======================
+   NOTIFICATIONS
+======================= */
+
 model Notification {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   title       String
   description String
   read        Boolean  @default(false)
   createdAt   DateTime @default(now())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@map("notification")
 }
+
+/* =======================
+   MERCHANDISE
+======================= */
 
 model Merchandise {
   id       String            @id @default(auto()) @map("_id") @db.ObjectId
   size     MerchandiseSize?
   color    MerchandiseColor?
   status   PaymentStatus?
+
   userId   String
   user     User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   payments Payment[]         @relation("MerchPayments")
 
   @@index([userId])
   @@map("merchandise")
+}
+
+/* =======================
+   EVENTS & TEAMS
+======================= */
+
+model Event {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  slug                String   @unique
+  name                String
+  minMembers          Int
+  maxMembers          Int
+
+  isVisible           Boolean  @default(true)
+  registrationOpen    Boolean  @default(false)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  adminUsers          EventAdmin[] @relation("AdminEventUsers")
+  teams               Team[]
+}
+
+model EventAdmin {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  eventId   String  @db.ObjectId
+  userId    String  @db.ObjectId
+
+  event     Event   @relation("AdminEventUsers", fields: [eventId], references: [id], onDelete: Cascade)
+  user      User    @relation("AdminUserEvents", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@map("event_admin")
 }
 
 model Team {
@@ -142,43 +192,44 @@ model Team {
   @@map("team")
 }
 
-model Event {
-  id         String @id @default(auto()) @map("_id") @db.ObjectId
-  slug       String @unique
-  name       String
-  minMembers Int
-  maxMembers Int
-
-  teams Team[]
-
-  @@map("event")
-}
+/* =======================
+   WORKSHOPS
+======================= */
 
 model Workshop {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   slug        String    @unique
   name        String
   price       Float
+
   payments    Payment[] @relation("WorkshopPayments")
   attendeeIds String[]  @db.ObjectId
   attendees   User[]    @relation(fields: [attendeeIds], references: [id])
+
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
   @@map("workshop")
 }
 
+/* =======================
+   PAYMENTS
+======================= */
+
 model Payment {
   id            String            @id @default(auto()) @map("_id") @db.ObjectId
-  userId        String
-  user          User              @relation("UserPayments", fields: [userId], references: [id], onDelete: Cascade)
   amount        Float
   paymentDate   DateTime          @default(now())
   transactionId String            @unique
   status        PaymentStatus
   targetType    PaymentTargetType
+
+  userId        String
+  user          User              @relation("UserPayments", fields: [userId], references: [id], onDelete: Cascade)
+
   workshopId    String?
   workshop      Workshop?         @relation("WorkshopPayments", fields: [workshopId], references: [id])
+
   merchandiseId String?
   merchandise   Merchandise?      @relation("MerchPayments", fields: [merchandiseId], references: [id])
 
@@ -187,6 +238,10 @@ model Payment {
   @@index([merchandiseId])
   @@map("payment")
 }
+
+/* =======================
+   PASSWORD RESET
+======================= */
 
 model ResetPasswordToken {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
