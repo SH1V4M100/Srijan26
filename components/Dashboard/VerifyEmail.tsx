@@ -3,7 +3,7 @@
 import { matchVerificationCode, verifyEmail } from "@/services/UserService";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { User } from "@/types/types";
+import { User } from "@/types/user";
 import { updateVerification } from "@/services/AuthService";
 import toast from "react-hot-toast";
 import Balls from "../Balls";

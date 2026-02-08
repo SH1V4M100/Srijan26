@@ -2,18 +2,18 @@
 
 import { useConfirmationDialogContext } from "@/hooks/useConfirmationDialog";
 import { leaveTeam } from "@/services/EventsService";
-import { Team } from "@/types/types";
 import { useRouter } from "next/navigation";
 import React from "react";
 import toast from "react-hot-toast";
+import { Clickable } from "../Clickable";
 
-function LeaveTeam({ team, id }: { team: Team; id: string }) {
+function LeaveTeam({ teamId, id }: { teamId: string; id: string }) {
     const modalContext = useConfirmationDialogContext();
     const router = useRouter();
 
     const handleLeaveTeam = () => {
         modalContext.showDialog("Are you sure you want to leave this team?", () => {
-            leaveTeam(team, id)
+            leaveTeam(teamId, id)
             .then(res => {
                 if(res.ok){
                     toast.success(res.message);
@@ -26,12 +26,13 @@ function LeaveTeam({ team, id }: { team: Team; id: string }) {
     };
     return (
         <div className="p-4 border-t border-t-gray-200/30 w-full grid place-items-center">
-            <button
-                className="cursor-pointer rounded-sm border border-white/20 bg-black/80 px-2 py-1 text-sm transition-colors duration-200 hover:border-white/40 active:border-white/60"
+            <Clickable
+                as="button"
+                className="bg-red hover:bg-red/70 active:bg-red/40"
                 onClick={() => handleLeaveTeam()}
             >
                 Leave Team
-            </button>
+            </Clickable>
         </div>
     );
 }

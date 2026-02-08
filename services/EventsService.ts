@@ -1,29 +1,84 @@
 "use server";
 
 import { prisma } from "@/prisma/client";
-import { Event, SessionUser, Team } from "@/types/types";
+import { SessionUser } from "@/types/user";
+import { Event, RegistrationStatus, Team } from "@/types/events";
 import ShortUniqueId from "short-unique-id";
 
 const getRegistrationStatus = async (userId: string, event: Event) => {
-    const team = await prisma.team.findFirst({
-        where: {
-            eventSlug: event.slug,
-            memberIds: {
-                has: userId,
+    try {
+        const team = await prisma.team.findFirst({
+            where: {
+                eventSlug: event.slug,
+                memberIds: {
+                    has: userId,
+                },
             },
-        },
-        select: {
-            id: true,
-            members: true,
-            joiningCode: true,
-            name: true,
-            leader: true,
-            eventSlug: true,
-            allowResetCode: true,
-        },
-    });
-    if (!team) return { status: false, team: null };
-    else return { status: true, team };
+            select: {
+                id: true,
+                members: true,
+                pendingMembers: true,
+                name: true,
+                leader: true,
+                eventSlug: true,
+                joiningCode: true,
+            },
+        });
+        if (team)
+            return {
+                status: RegistrationStatus.REGISTERED,
+                team,
+                pendingTeamData: null,
+            };
+
+        const pendingTeam = await prisma.team.findFirst({
+            where: {
+                eventSlug: event.slug,
+                pendingMemberIds: {
+                    has: userId,
+                },
+            },
+            select: {
+                id: true,
+                members: true,
+                name: true,
+                leader: true,
+            },
+        });
+
+        const pendingTeamLeader = pendingTeam?.members.find(
+            (member) => member.id === pendingTeam.leader,
+        );
+
+        if (!pendingTeam || !pendingTeamLeader)
+            return {
+                status: RegistrationStatus.NOT_REGISTERED,
+                team: null,
+                pendingTeamData: null,
+            };
+
+        const pendingTeamData = {
+            id: pendingTeam.id,
+            name: pendingTeam.name,
+            leader: {
+                name: pendingTeamLeader.name,
+                email: pendingTeamLeader.email,
+            },
+        };
+
+        return {
+            status: RegistrationStatus.PENDING,
+            team: null,
+            pendingTeamData,
+        };
+    } catch (err) {
+        console.error(`Error while fetching registration status: ${err}`);
+        return {
+            status: RegistrationStatus.NOT_REGISTERED,
+            team: null,
+            pendingTeamData: null,
+        };
+    }
 };
 
 const getEventFromSlug = async (slug: string) => {
@@ -50,48 +105,62 @@ const createTeam = async (
         });
         if (existingTeam)
             return { ok: false, message: "Team name already taken" };
-        const short_uid = new ShortUniqueId({ length: 6 }).rnd();
-        const joiningCode = `${event.slug}_${short_uid}`;
+        const shortUid = new ShortUniqueId({ length: 6 }).rnd();
+        const joiningCode = `${event.slug}_${shortUid}`;
+
         await prisma.team.create({
             data: {
                 name: teamName,
                 joiningCode,
                 leader: user.id,
                 eventSlug: event.slug,
-                memberIds: [user.id],
+                members: {
+                    connect: {
+                        id: user.id,
+                    },
+                },
             },
         });
+
         return { ok: true, message: "Team created successfully" };
     } catch (err) {
         console.error(`Error while creating team: ${err}`);
-        return { ok: false, message: "Error occurred" };
+        return { ok: false, message: "Error occurred - failed to create team" };
     }
 };
 
 const joinTeam = async (event: Event, user: SessionUser, teamCode: string) => {
+    // TODO: send notification to team lead
     try {
-        const team = await prisma.team.findFirst({
+        const team = await prisma.team.findUnique({
             where: {
                 joiningCode: teamCode,
+                eventSlug: event.slug,
             },
             select: {
+                id: true,
                 name: true,
                 memberIds: true,
+                pendingMemberIds: true,
             },
         });
         if (!team) return { ok: false, message: "Invalid joining code" };
-        if (team.memberIds.length === event.maxMembers)
+        if (team.memberIds.length >= event.maxMembers)
             return { ok: false, message: "Team full" };
+
         await prisma.team.update({
             where: {
                 joiningCode: teamCode,
             },
             data: {
-                memberIds: {
-                    push: user.id,
+                pendingMembers: {
+                    connect: {
+                        id: user.id,
+                    },
                 },
             },
         });
+
         return { ok: true, message: `Joined team ${team.name}` };
     } catch (err) {
         console.error(`Error while joining team: ${err}`);
@@ -99,55 +168,24 @@ const joinTeam = async (event: Event, user: SessionUser, teamCode: string) => {
     }
 };
 
-/* const completeRegistration = async (team: Team, event: Event) => {
-  const eligible =
-    team.members.length <= event.maxMembers &&
-    team.members.length >= event.minMembers;
-  if (!eligible) return { ok: false, message: "Not enough members." };
-  await prisma.team.update({
-    where: {
-      id: team.id,
-    },
-    data: {
-      complete: true,
-    },
-  });
-  return { ok: true, message: "Registration complete!" };
-}; */
-
-const resetJoiningCode = async (team: Team) => {
-    try {
-        const shortUid = new ShortUniqueId({ length: 6 }).rnd();
-        const joiningCode = `${team.eventSlug}_${shortUid}`;
-        await prisma.team.update({
-            where: {
-                id: team.id,
-            },
-            data: {
-                joiningCode,
-                allowResetCode: false,
-            },
-        });
-        return { ok: true, code: joiningCode };
-    } catch (err) {
-        console.error(`Error while resetting joining code: ${err}`);
-        return { ok: false, code: null };
-    }
-};
-
-const transferTeamLead = async (team: Team, newLeadId: string) => {
+const transferTeamLead = async (teamId: string, newLeadId: string) => {
     try {
         const currentTeam = await prisma.team.findFirst({
-            where: { id: team.id },
+            where: { id: teamId },
             select: { memberIds: true },
         });
 
-        if (currentTeam?.memberIds.indexOf(newLeadId) === -1)
-            return { ok: false, message: "Member has left team" };
+        if (!currentTeam) {
+            return { ok: false, message: "Team not found" };
+        }
+
+        if (!currentTeam.memberIds.includes(newLeadId)) {
+            return { ok: false, message: "Member is no longer in team" };
+        }
 
         await prisma.team.update({
             where: {
-                id: team.id,
+                id: teamId,
             },
             data: {
                 leader: newLeadId,
@@ -160,18 +198,17 @@ const transferTeamLead = async (team: Team, newLeadId: string) => {
     }
 };
 
-const removeMember = async (team: Team, memberId: string) => {
+const removeMember = async (teamId: string, memberId: string) => {
     try {
-        const updatedMemberIds = team.members
-            .filter((member) => member.id && member.id !== memberId)
-            .map((member) => member.id ?? "");
         await prisma.team.update({
             where: {
-                id: team.id,
+                id: teamId,
             },
             data: {
-                memberIds: {
-                    set: updatedMemberIds,
+                members: {
+                    disconnect: {
+                        id: memberId,
+                    },
                 },
             },
         });
@@ -182,16 +219,118 @@ const removeMember = async (team: Team, memberId: string) => {
     }
 };
 
+const acceptPendingMember = async (
+    teamId: string,
+    memberId: string,
+    event: Event,
+) => {
+    try {
+        const status = await prisma.$transaction(async (txn) => {
+            const team = await txn.team.findUnique({
+                where: {
+                    id: teamId,
+                },
+                select: {
+                    memberIds: true,
+                    pendingMemberIds: true
+                },
+            });
+
+            if (!team) return { ok: false, message: "Invalid team" };
+
+            if(!team.pendingMemberIds.includes(memberId)) return {ok: false, message: "Invalid invitation"};
+            
+            const teamSize = team?.memberIds.length;
+            if (teamSize >= event.maxMembers)
+                return { ok: false, message: "Team is full" };
+
+            const existingTeam = await txn.team.findMany({
+                where: {
+                    eventSlug: event.slug,
+                    memberIds: {
+                        has: memberId,
+                    },
+                },
+            });
+
+            if (existingTeam && existingTeam.length > 0)
+                return {
+                    ok: false,
+                    message: "Member is already in a team for given event",
+                };
+
+            await txn.team.update({
+                where: {
+                    id: teamId,
+                },
+                data: {
+                    members: {
+                        connect: {
+                            id: memberId,
+                        },
+                    },
+                    pendingMembers: {
+                        disconnect: {
+                            id: memberId,
+                        },
+                    },
+                },
+            });
+        });
+        if (status && !status.ok) return status;
+        return { ok: true, message: "Accepted member" };
+    } catch (err) {
+        console.log(`Error while accepting member: ${err}`);
+        return {
+            ok: false,
+            message: "Error occurred - failed to accept member",
+        };
+    }
+};
+
+const rejectPendingMember = async (teamId: string, memberId: string) => {
+    try {
+        await prisma.team.update({
+            where: {
+                id: teamId,
+            },
+            data: {
+                pendingMembers: {
+                    disconnect: {
+                        id: memberId,
+                    },
+                },
+            },
+        });
+        return { ok: true, message: "Rejected member" };
+    } catch (err) {
+        console.log(`Error while removing member: ${err}`);
+        return { ok: false, message: "Error occurred - failed to reject" };
+    }
+};
+
 const deleteTeam = async (team: Team) => {
     try {
+        const oid = { $oid: team.id };
+
         await prisma.$transaction(async (txn) => {
             await txn.$runCommandRaw({
-                update: 'User',
-                updates: [{
-                    q: { teamIds: team.id},
-                    u: { $pull: { teamIds: team.id}},
-                    multi: true
-                }]
+                update: "user",
+                updates: [
+                    {
+                        q: {
+                            $or: [{ teamIds: oid }, { pendingTeamIds: oid }],
+                        },
+                        u: {
+                            $pull: {
+                                teamIds: oid,
+                                pendingTeamIds: oid,
+                            },
+                        },
+                        multi: true,
+                    },
+                ],
+                ordered: false,
             });
 
             await txn.team.delete({
@@ -208,33 +347,42 @@ const deleteTeam = async (team: Team) => {
     }
 };
 
-const leaveTeam = async (team: Team, id: string) => {
-    const updatedMemberIds = team.members
-        .filter((member) => member.id !== id)
-        .map((member) => member.id!);
+const leaveTeam = async (teamId: string, id: string) => {
     try {
-        await prisma.$transaction(async (txn) => {
-            const user = await txn.user.findFirst({
-                where: { id },
-                select: { teamIds: true },
-            });
-
-            await txn.user.update({
-                where: { id },
-                data: {
-                    teamIds: user?.teamIds.filter(
-                        (teamId) => teamId !== team.id,
-                    ),
+        await prisma.team.update({
+            where: {
+                id: teamId,
+            },
+            data: {
+                members: {
+                    disconnect: {
+                        id,
+                    },
                 },
-            });
-
-            await txn.team.update({
-                where: { id: team.id },
-                data: {
-                    memberIds: updatedMemberIds,
-                },
-            });
+            },
         });
+        return { ok: true, message: "Left team successfully" };
+    } catch (err) {
+        console.error(`Error while leaving team: ${err}`);
+        return { ok: false, message: "Error occurred" };
+    }
+};
+
+const leavePendingTeam = async (teamId: string, id: string) => {
+    try {
+        await prisma.team.update({
+            where: {
+                id: teamId,
+            },
+            data: {
+                pendingMembers: {
+                    disconnect: {
+                        id,
+                    },
+                },
+            },
+        });
+
         return { ok: true, message: "Left team successfully" };
     } catch (err) {
         console.error(`Error while leaving team: ${err}`);
@@ -247,9 +395,11 @@ export {
     getEventFromSlug,
     createTeam,
     joinTeam,
-    resetJoiningCode,
     transferTeamLead,
     removeMember,
     deleteTeam,
     leaveTeam,
+    leavePendingTeam,
+    acceptPendingMember,
+    rejectPendingMember,
 };
