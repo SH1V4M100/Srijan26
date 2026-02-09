@@ -1,9 +1,12 @@
+"use client";
+
 import ProductView from "@/components/Merchandise/ProductView";
 import Price from "@/components/Merchandise/Price";
 import Contact from "@/components/Merchandise/Contact";
 import Balls from "@/components/Balls";
 import Image from "next/image";
 import { Clickable } from "@/components/Clickable";
+import { useState } from "react";
 
 // export default function MerchandisePage() {
 //   return (
@@ -103,6 +106,8 @@ import { Clickable } from "@/components/Clickable";
 
 
 export default function MerchandisePage() {
+  const [activeIndex, setActiveIndex] = useState(0);
+
   return (
     <main className="full-bleed min-h-screen bg-[url('/bg.jpg')] bg-cover bg-center relative text-white">
       <Balls />
@@ -117,29 +122,45 @@ export default function MerchandisePage() {
           items-center
         "
       >
-        {/* LEFT */}
         <div className="flex flex-col items-center gap-6 md:gap-10">
           <ProductView />
 
           <div className="flex gap-3 md:gap-4">
-            {[1, 2, 3].map((i) => (
-              <div
+            {[0, 1, 2].map((i) => (
+              <button
                 key={i}
-                className="w-16 h-16 md:w-20 md:h-20 border border-white/40 flex items-center justify-center bg-white/5"
+                type="button"
+                onClick={() => setActiveIndex(i)}
+                className={`
+                  w-16 h-16 md:w-20 md:h-20
+                  flex items-center justify-center
+                  bg-white/5
+                  border
+                  transition
+                  outline-none
+                  ${
+                    activeIndex === i
+                      ? "border-[#EBD87D] ring-2 ring-[#EBD87D]/60"
+                      : "border-white/40 hover:border-white"
+                  }
+                  focus-visible:ring-2
+                  focus-visible:ring-[#EBD87D]
+                  focus-visible:ring-offset-2
+                  focus-visible:ring-offset-black
+                `}
               >
                 <Image
                   src="/shirt2.png"
-                  alt="Merchandise preview"
+                  alt={`Merchandise preview ${i + 1}`}
                   width={48}
                   height={48}
-                  className="object-contain"
+                  className="object-contain pointer-events-none"
                 />
-              </div>
+              </button>
             ))}
           </div>
         </div>
 
-        {/* RIGHT */}
         <div className="flex flex-col items-center text-center gap-6 md:gap-8 max-w-xl mx-auto">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-elnath tracking-wide text-[#EBD87D]">
             MERCHANDISE
