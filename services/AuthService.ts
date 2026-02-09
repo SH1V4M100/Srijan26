@@ -1,6 +1,6 @@
 "use server";
 
-import { User } from "@/types/types";
+import { User } from "@/types/user";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/prisma/client";
 import { auth, signIn, unstable_update } from "@/auth";

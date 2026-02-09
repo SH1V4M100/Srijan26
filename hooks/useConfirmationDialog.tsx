@@ -51,7 +51,7 @@ export const ConfirmationDialogContextProvider = ({
       <div className="fixed h-screen w-screen -z-10">
         <dialog
           ref={dialogRef}
-          className="fixed top-1/2 left-1/2 -translate-1/2 z-300 rounded-sm backdrop:bg-gray-800/75"
+          className="fixed top-1/2 left-1/2 -translate-1/2 z-300 rounded-sm backdrop:bg-gray-800/75 w-full sm:w-1/3"
         >
           <div className="flex flex-col items-center gap-4 px-8 py-3">
             <h3 className="text-2xl underline underline-offset-4">

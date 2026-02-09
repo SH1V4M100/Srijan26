@@ -1,26 +1,28 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Project Setup
 
-## Getting Started
+1. Create a fork.
+2. Clone your fork.
+3. ``` cd srijan26 ```
+4. ``` npm i ```
+5. Copy the contents of .env.example, create a .env file and paste the contents there (make sure the env isn't being tracked by git).
+6. ``` npx prisma generate ```
+7. ``` npm run dev ```
+8. If working on the backend, run ``` docker-compose up -d ``` to start up a local instance of mongodb using docker.
+9. Run ``` npx prisma db push ``` to sync your schema with your database.
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- When you want to merge your changes, create a pull request to the ```dev``` branch of the repository.
 
 ## Project Overview
 
 - ```components``` has currently payments data, read the README in that file to know more
 - ```hooks``` has payment modular function that connects to cashfree service and is called by the _paymentSection.tsx_
-- ```lib``` has auth actions (sign in, sign out and sign up apis), and the auth files itself for betterauth
-- DB client -> @/prisma/prisma.ts
+
+### Some development guidelines
+
+- To access the database, import {prisma} from ["@/prisma/client"](/prisma/client.ts). Do not create a new Prisma Client instance for every file.
+
+- For protected components, you can use the checkAuthentication method from [AuthService](services/AuthService.ts).
+
+- For critical operations (editing/deleting data, etc), use a Confirmation Dialog on the frontend. Check [this](hooks/useConfirmationDialog.tsx) page for usage instructions.
+
+- For the background gradient effect, you can use [this](/components/Balls.tsx) component. And for the non-rectangular button design, [this](/components/Clickable.tsx).
