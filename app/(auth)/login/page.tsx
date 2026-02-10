@@ -91,7 +91,7 @@ function SignInForm() {
                 as="button"
                 onClick={(e) => handleSubmit(e)}
                 disabled={loading}
-                className="bg-red hover:bg-red/70 active:bg-red/40"
+                className="bg-red hover:bg-red/70 active:bg-red/40 cursor-pointer"
             >
                 Submit
             </Clickable>
@@ -102,7 +102,7 @@ function SignInForm() {
             </div>
             <button
                 onClick={(e) => handleSignInWithGoogle(e)}
-                className="rounded-full bg-white px-8 py-3 text-black transition-colors duration-300 hover:bg-white/90 active:bg-white/60 flex items-center gap-3"
+                className="rounded-full bg-white px-8 py-3 text-black transition-colors duration-300 hover:bg-white/90 active:bg-white/60 flex items-center gap-3 cursor-pointer"
                 disabled={loading}
             >
                 <svg
