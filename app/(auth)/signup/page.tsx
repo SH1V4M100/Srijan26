@@ -63,6 +63,7 @@ function SignUpForm() {
 
         setErrors({ name: "", email: "", password: "", confirmPassword: "" });
         const isValid = UserSchema.safeParse(data);
+
         if (!isValid.success) {
             isValid.error.issues.forEach((issue) => {
                 if (issue.path[0]) {
@@ -99,6 +100,7 @@ function SignUpForm() {
                     router.push("/dashboard");
                 } else {
                     toast.error(res.message);
+                    setLoading(false);
                 }
             })
             .catch(() => {

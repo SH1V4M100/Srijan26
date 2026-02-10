@@ -13,6 +13,13 @@ type User = {
     role?: UserRole;
     year?: string | null;
     department?: string | null;
+    phone?: string | null;
+    college?: string | null;
+    verificationToken?: string | null;
+    teamIds?: string[];
+    pendingTeamIds?: string[];
+    wishlistedEventIds?: string[];
+    workshopIds?: string[];
 }
 
 type SessionUser = {

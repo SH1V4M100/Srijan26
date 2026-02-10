@@ -160,7 +160,7 @@ function RegistrationForm({ id }: { id: string }) {
                 <input
                     type="text"
                     name="year"
-                    placeholder="Year"
+                    placeholder="Year of Graduation"
                     value={data.year}
                     onChange={(e) => {
                         handleChange("year", e.target.value);
