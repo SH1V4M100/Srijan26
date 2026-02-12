@@ -5,7 +5,7 @@ import { checkRegistrationStatus, getUserByEmail, validateUser } from "@/service
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/prisma/client";
 import { Adapter } from "next-auth/adapters";
-import { UserRole } from "./prisma/generated/prisma/enums";
+import { UserRole } from "@prisma/client"
 declare module "next-auth" {
   interface User {
     role: UserRole;
