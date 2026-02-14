@@ -117,21 +117,16 @@ const signup = async (user: User, hCaptchaToken: string | null) => {
 };
 
 const checkAuthentication = async (redirectUrl = "") => {
-  let session = await auth();
+  const session = await auth();
   const encodedRedirectUrl = encodeURIComponent(redirectUrl);
   if (!session || !session.user || !session.user.id)
-    redirect(`/login?redirect=${encodedRedirectUrl}`);
+    redirect(`/signin?redirect=${encodedRedirectUrl}`);
 
   if (redirectUrl.indexOf("dashboard") !== -1) return session.user;
 
-  if (!session.user.emailVerified || !session.user.registrationComplete) {
-    const status = await checkRegistrationStatus(session.user.id);
-    if (!session.user.emailVerified && status.emailVerified) session = await updateVerification();
-    if (session && !session.user.registrationComplete && status.registrationComplete) session = await updateRegistrationStatus();
-
-    if (!session || !session.user.emailVerified || !session.user.registrationComplete)
+  if(!session.user.emailVerified || !session.user.registrationComplete)
       redirect(`/dashboard?redirect=${encodedRedirectUrl}`);
-  }
+  
 
   return session.user;
 };

@@ -1,9 +1,12 @@
 "use client";
 
-import { updateRegistrationStatus } from "@/services/AuthService";
+import {
+    checkRegistrationStatus,
+    updateRegistrationStatus,
+} from "@/services/AuthService";
 import { completeUserRegistration } from "@/services/UserService";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import z from "zod";
 import Balls from "../Balls";
@@ -48,6 +51,17 @@ function RegistrationForm({ id }: { id: string }) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const redirectUrl = searchParams.get("redirect");
+
+    useEffect(() => {
+        checkRegistrationStatus(id).then((res) => {
+            if (res.registrationComplete) {
+                updateRegistrationStatus().then(() => {
+                    if (redirectUrl) router.push(redirectUrl);
+                    else router.refresh();
+                });
+            }
+        });
+    }, [id, redirectUrl, router]);
 
     const handleChange = (field: string, value: string) => {
         setData((prev) => ({ ...prev, [field]: value }));

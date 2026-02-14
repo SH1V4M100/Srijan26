@@ -2,9 +2,9 @@
 
 import { matchVerificationCode, verifyEmail } from "@/services/UserService";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { User } from "@/types/user";
-import { updateVerification } from "@/services/AuthService";
+import { checkRegistrationStatus, updateVerification } from "@/services/AuthService";
 import toast from "react-hot-toast";
 import Balls from "../Balls";
 import { Clickable } from "../Clickable";
@@ -14,6 +14,16 @@ function VerifyEmail({ user }: { user: User }) {
   const [code, setCode] = useState("");
   const [codeSent, setCodeSent] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    checkRegistrationStatus(user.id).then((res) => {
+      if (res.registrationComplete) {
+        updateVerification().then(() => {
+          router.refresh();
+        });
+      }
+    });
+  }, [user.id, router]);
 
   const handleSubmit = () => {
     if (code.length !== 8) {
