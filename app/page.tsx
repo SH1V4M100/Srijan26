@@ -1,6 +1,7 @@
 import Balls from "@/components/Balls";
 import { HeroSection } from "@/components/Landing/HeroSection";
 import Timeline from "@/components/Landing/Timeline";
+import Footer from "@/components/Landing/Footer";
 
 export default function Home() {
   return (
@@ -8,8 +9,7 @@ export default function Home() {
       <HeroSection />
       <Balls />
       <Timeline />
-      {/* Free scrolling space -- remove later */}
-      <div className="h-[100vh] w-full" />
+      <Footer />
     </>
   );
 }
