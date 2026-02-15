@@ -57,7 +57,7 @@ export function MobileMenu() {
           { href: "/events", label: "events" },
           { href: "/merchandise", label: "merchandise" },
           { href: "/notifications", label: "notifications" },
-          { href: "/dashboard", label: "dashboard" }
+          { href: "/accomodation", label: "accomodation" },
         ].map((item) => (
            <MobileNavLink 
               key={item.label} 

@@ -72,7 +72,7 @@ export function LoginButton({ className, isActive, onClick }: LoginButtonProps) 
             transition={{ duration: 0.2 }}
           >
            <div
-              className="absolute inset-[2px] bg-background"
+              className="absolute inset-0.5 bg-background"
               style={{ clipPath: CLIP_PATH }}
             />
           </motion.div>
