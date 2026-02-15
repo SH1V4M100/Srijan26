@@ -25,7 +25,7 @@ export const Countdown = ({ targetDate }: { targetDate: number }) => {
   const [days, hours, minutes, seconds] = useCountdown(targetDate);
 
   return (
-    <div className="flex justify-center items-center gap-2 p-2">
+    <div className="flex justify-center items gap-2 p-2">
       <DateTimeDisplay value={days} type={"D"} /> {":"}
       <DateTimeDisplay value={hours} type={"H"} /> {":"}
       <DateTimeDisplay value={minutes} type={"M"} /> {":"}

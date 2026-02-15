@@ -11,13 +11,13 @@ export function HeroSection() {
         height={200}
         width={2.298 * 200} // Aspect ratio 2.298:1
       />
-      <h2 className="py-5 pl-12 text-xl sm:text-2xl md:text-3xl">
+      <h2 className="py-5 px-12 text-xl sm:text-2xl md:text-3xl">
         The Annual Techno-Management Fest of{" "}
         <div className="font-elnath py-2 text-3xl sm:text-4xl md:text-5xl uppercase">
           Jadavpur University
         </div>
       </h2>
-      <article className="self-end grid py-8 pr-12">
+      <article className="self-end grid py-8 px-12">
         <h3 className="p-2 border-t border-b text-xl text-center">
           Time Remaining
         </h3>
