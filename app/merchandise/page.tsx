@@ -166,7 +166,7 @@ export default function MerchandisePage() {
             MERCHANDISE
           </h1>
 
-          <div className="text-white/80 space-y-3 md:space-y-4 font-[var(--font-euclid)]">
+          <div className="text-white/80 space-y-3 md:space-y-4 font-euclid">
             <p className="text-lg md:text-[24px] leading-[120%]">
               Presenting the Official Merchandise for Srijan’26!
             </p>

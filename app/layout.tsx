@@ -6,6 +6,7 @@ import { MobileNavProvider } from "@/hooks/useMobileNav";
 import NavBar from "@/components/NavBar";
 import { Toaster } from "react-hot-toast";
 import SmoothScroll from "@/components/Landing/SmoothScroll";
+import Footer from "@/components/Landing/Footer";
 
 const euclid = localFont({
     variable: "--font-euclid",
@@ -49,6 +50,7 @@ export default function RootLayout({
                         <ConfirmationDialogContextProvider>
                             <NavBar />
                             {children}
+                            <Footer />
                         </ConfirmationDialogContextProvider>
                     </MobileNavProvider>
                 </SmoothScroll>

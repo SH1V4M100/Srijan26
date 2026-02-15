@@ -58,7 +58,7 @@ export function NavLink({ href, label, isActive, onClick, className }: NavLinkPr
             transition={{ duration: 0.2 }}
           >
              <div
-              className="absolute inset-[2px] bg-background"
+              className="absolute inset-0.5 bg-background"
               style={{ clipPath: CLIP_PATH }}
             />
           </motion.div>

@@ -145,7 +145,7 @@ export default function Timeline() {
       </h2>
 
 
-      <div ref={containerRef} className="relative w-full max-w-[500px] px-8" style={{ aspectRatio: '637/2658' }}>
+      <div ref={containerRef} className="relative w-full max-w-125 px-8" style={{ aspectRatio: '637/2658' }}>
         
         {/* The SVG Line */}
         <svg 

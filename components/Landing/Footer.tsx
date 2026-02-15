@@ -75,7 +75,7 @@ export default function Footer() {
       {/* ── Top Section ── */}
       <div className="px-6 md:px-12 lg:px-16 flex flex-col lg:flex-row gap-12 lg:gap-20">
         {/* Left — Logo + Description */}
-        <div className="flex flex-col gap-2 lg:max-w-[380px] shrink-0">
+        <div className="flex flex-col gap-2 lg:max-w-95 shrink-0">
           <div className="flex items-center gap-3">
             <div className="relative w-16 h-16 shrink-0">
               <Image
