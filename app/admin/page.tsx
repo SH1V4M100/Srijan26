@@ -1,12 +1,10 @@
 import { checkAdminAuthorization } from "@/services/AuthService";
+import { getAdminEvents } from "@/services/AdminService";
+import { AdminDashboard } from "@/components/admin/AdminDashboard";
 
 export default async function AdminPage() {
-  const admin = await checkAdminAuthorization();
+  const user = await checkAdminAuthorization();
+  const events = await getAdminEvents(user.id, user.role);
 
-  return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-      <p>Welcome, {admin.name}</p>
-    </div>
-  );
+  return <AdminDashboard user={user} events={events} />;
 }

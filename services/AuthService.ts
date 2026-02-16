@@ -159,6 +159,13 @@ const updateRegistrationStatus = async () => {
   return res;
 };
 
+// services/AuthService.ts
+export type AuthUser = {
+  id: string;
+  email: string;
+  role: string;
+};
+
 export {
   getUserByEmail,
   validateUser,
