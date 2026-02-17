@@ -1,6 +1,7 @@
 "use server";
-
-import { User } from "@/types/user";
+import { UserRole } from "@/prisma/generated/prisma/enums";
+import { Prisma } from "@/prisma/generated/prisma/client";
+import { User } from "@/types/types";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/prisma/client";
 import { auth, signIn, unstable_update } from "@/auth";
@@ -69,10 +70,12 @@ const signup = async (user: User, hCaptchaToken: string | null) => {
     if (!validCaptcha)
       return { ok: false, message: "Captcha Verification Failed" };
 
-    if (!user.password) return { ok: false, message: "Password is required" };
+    if (!user.password)
+      return { ok: false, message: "Password is required" };
 
     const existingUser = await getUserByEmail(user.email);
-    if (existingUser) return { ok: false, message: "Email already in use" };
+    if (existingUser)
+      return { ok: false, message: "Email already in use" };
 
     const hashedPassword = await bcrypt.hash(user.password, 12);
     const newUser = {...user, password: hashedPassword}
@@ -119,13 +122,23 @@ const checkAuthentication = async (redirectUrl = "") => {
 
 const checkAdminAuthorization = async () => {
   const session = await auth();
+
+  if (  !session ||  !session.user ||  !["ADMIN", "SUPERADMIN"].includes(session.user.role)) {
+  redirect("/admin/login");
+}
+  return session.user;
+};
+
+const checkSuperAdminAuthorization = async () => {
+  const session = await auth();
+
   if (
     !session ||
     !session.user ||
-    !session.user.id ||
-    session.user.role !== "ADMIN"
-  )
-    redirect("/login");
+    session.user.role !== "SUPERADMIN"
+  ) {
+    redirect("/admin/login");
+  }
 
   return session.user;
 };
@@ -150,6 +163,13 @@ const updateRegistrationStatus = async () => {
   return res;
 };
 
+// services/AuthService.ts
+export type AuthUser = {
+  id: string;
+  email: string;
+  role: string;
+};
+
 export {
   getUserByEmail,
   validateUser,
@@ -157,6 +177,7 @@ export {
   signup,
   checkAuthentication,
   checkAdminAuthorization,
+  checkSuperAdminAuthorization,
   checkRegistrationStatus,
   updateVerification,
   updateRegistrationStatus,
