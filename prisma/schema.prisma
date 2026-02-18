@@ -140,6 +140,7 @@ model Merchandise {
   color           MerchandiseColor?
   status          PaymentStatus?
   preferredCampus Campus            @default(JADAVPUR)
+  customText      String?
 
   userId   String    @db.ObjectId
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)

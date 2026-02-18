@@ -1,6 +1,5 @@
 "use server";
-import { UserRole } from "@/prisma/generated/prisma/enums";
-import { Prisma } from "@/prisma/generated/prisma/client";
+import "server-only";
 import { User } from "@/types/types";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/prisma/client";
@@ -25,20 +24,20 @@ const validateUser = async (user: User | null, password: string) => {
 };
 
 const handleSignin = async (email: string, password: string) => {
-  if(!email || !password) return {ok: false, message: "Email and password required"};
-  try{
-    await signIn("credentials",{
+  if (!email || !password) return { ok: false, message: "Email and password required" };
+  try {
+    await signIn("credentials", {
       email,
       password,
       redirect: false
     });
-    return {ok: true, message: "Login successful"};
-  }catch(err){
+    return { ok: true, message: "Login successful" };
+  } catch (err) {
     console.error(err);
-    if(err instanceof AuthError && err.type === "CredentialsSignin")
-      return {ok: false, message: "Invalid credentials"};
+    if (err instanceof AuthError && err.type === "CredentialsSignin")
+      return { ok: false, message: "Invalid credentials" };
     else
-      return {ok: false, message: "Error in login"};
+      return { ok: false, message: "Error in login" };
   }
 }
 
@@ -59,7 +58,7 @@ const verifyCaptchaToken = async (token: string | null) => {
     body: captchaBody.toString(),
   });
 
-  if(!captchaResponse.ok) return false;
+  if (!captchaResponse.ok) return false;
   const captchaStatus = await captchaResponse.json();
   return captchaStatus.success;
 };
@@ -78,21 +77,33 @@ const signup = async (user: User, hCaptchaToken: string | null) => {
       return { ok: false, message: "Email already in use" };
 
     const hashedPassword = await bcrypt.hash(user.password, 12);
-    const newUser = {...user, password: hashedPassword}
+    // Destructure referralCode to exclude it from the database write
+    const { referralCode, ...userData } = user;
+    const dbUser = { ...userData, password: hashedPassword };
 
-    await prisma.user.create({ data: newUser },);
-    
-    try{
+    await prisma.user.create({ data: dbUser });
+
+    if (referralCode) {
+      try {
+        await prisma.campusAmbassador.update({
+          where: { referralCode: referralCode },
+          data: { referralCount: { increment: 1 } },
+        });
+      } catch (err) {
+        console.error(`Error incrementing CA count: ${err}`);
+      }
+    }
+
+    try {
       await signIn("credentials", {
         email: user.email,
         password: user.password,
         redirect: false
       });
-    }catch(err){
+    } catch (err) {
       console.error(err);
-      return {ok: false, message: "Error in login after signup, please login manually"};
+      return { ok: false, message: "Error in login after signup, please login manually" };
     }
-  
     return { ok: true, message: "Signup successful" };
   } catch (err) {
     console.error(err);
@@ -106,14 +117,14 @@ const checkAuthentication = async (redirectUrl = "") => {
   if (!session || !session.user || !session.user.id)
     redirect(`/login?redirect=${encodedRedirectUrl}`);
 
-  if(redirectUrl.indexOf("dashboard") !== -1) return session.user;
+  if (redirectUrl.indexOf("dashboard") !== -1) return session.user;
 
-  if(!session.user.emailVerified || !session.user.registrationComplete){
+  if (!session.user.emailVerified || !session.user.registrationComplete) {
     const status = await checkRegistrationStatus(session.user.id);
-    if(!session.user.emailVerified && status.emailVerified) session = await updateVerification();
-    if(session && !session.user.registrationComplete && status.registrationComplete) session = await updateRegistrationStatus();
-    
-    if(!session || !session.user.emailVerified || !session.user.registrationComplete) 
+    if (!session.user.emailVerified && status.emailVerified) session = await updateVerification();
+    if (session && !session.user.registrationComplete && status.registrationComplete) session = await updateRegistrationStatus();
+
+    if (!session || !session.user.emailVerified || !session.user.registrationComplete)
       redirect(`/dashboard?redirect=${encodedRedirectUrl}`);
   }
 
@@ -123,9 +134,9 @@ const checkAuthentication = async (redirectUrl = "") => {
 const checkAdminAuthorization = async () => {
   const session = await auth();
 
-  if (  !session ||  !session.user ||  !["ADMIN", "SUPERADMIN"].includes(session.user.role)) {
-  redirect("/admin/login");
-}
+  if (!session || !session.user || !["ADMIN", "SUPERADMIN"].includes(session.user.role)) {
+    redirect("/admin/login");
+  }
   return session.user;
 };
 
@@ -168,6 +179,7 @@ export type AuthUser = {
   id: string;
   email: string;
   role: string;
+  referralCode?: string;
 };
 
 export {
