@@ -333,9 +333,9 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <Tabs defaultValue="users" className="space-y-6">
                     <TabsList className="bg-slate-100 p-1 rounded-lg">
-                        <TabsTrigger value="users" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">Users</TabsTrigger>
-                        <TabsTrigger value="merchandise" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">Merchandise</TabsTrigger>
-                        <TabsTrigger value="live-events" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">Live Events</TabsTrigger>
+                        <TabsTrigger value="users" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Users</TabsTrigger>
+                        <TabsTrigger value="merchandise" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Merchandise</TabsTrigger>
+                        <TabsTrigger value="live-events" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Live Events</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="users" className="space-y-4">
@@ -414,41 +414,41 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
                                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
                                     <div className="flex gap-2 col-span-2">
                                         <Select value={yearFilterOperator} onValueChange={(v: "gt" | "lt") => setYearFilterOperator(v)}>
-                                            <SelectTrigger className="w-[140px]">
+                                            <SelectTrigger className="w-[140px] bg-white text-slate-900 border-slate-200">
                                                 <SelectValue />
                                             </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="gt">Greater Than</SelectItem>
-                                                <SelectItem value="lt">Less Than</SelectItem>
+                                            <SelectContent className="bg-white border-slate-200 text-slate-900">
+                                                <SelectItem value="gt" className="text-slate-900 focus:bg-slate-100 focus:text-slate-900">Greater Than</SelectItem>
+                                                <SelectItem value="lt" className="text-slate-900 focus:bg-slate-100 focus:text-slate-900">Less Than</SelectItem>
                                             </SelectContent>
                                         </Select>
                                         <Input
                                             placeholder="Year (e.g. 2026)"
                                             value={yearFilterValue}
                                             onChange={(e) => setYearFilterValue(e.target.value)}
-                                            className="flex-1"
+                                            className="flex-1 bg-white text-slate-900 border-slate-200 placeholder:text-slate-400"
                                         />
                                     </div>
 
                                     <Select value={merchCampusFilter} onValueChange={setMerchCampusFilter}>
-                                        <SelectTrigger>
+                                        <SelectTrigger className="bg-white text-slate-900 border-slate-200">
                                             <SelectValue placeholder="Filter by Campus" />
                                         </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">All Campuses</SelectItem>
-                                            <SelectItem value="JADAVPUR">Jadavpur</SelectItem>
-                                            <SelectItem value="SALT_LAKE">Salt Lake</SelectItem>
+                                        <SelectContent className="bg-white border-slate-200 text-slate-900">
+                                            <SelectItem value="all" className="text-slate-900 focus:bg-slate-100 focus:text-slate-900">All Campuses</SelectItem>
+                                            <SelectItem value="JADAVPUR" className="text-slate-900 focus:bg-slate-100 focus:text-slate-900">Jadavpur</SelectItem>
+                                            <SelectItem value="SALT_LAKE" className="text-slate-900 focus:bg-slate-100 focus:text-slate-900">Salt Lake</SelectItem>
                                         </SelectContent>
                                     </Select>
 
                                     <Select value={merchColorFilter} onValueChange={setMerchColorFilter}>
-                                        <SelectTrigger>
+                                        <SelectTrigger className="bg-white text-slate-900 border-slate-200">
                                             <SelectValue placeholder="Filter by Color" />
                                         </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">All Colors</SelectItem>
-                                            <SelectItem value="BLACK">Black</SelectItem>
-                                            <SelectItem value="WHITE">White</SelectItem>
+                                        <SelectContent className="bg-white border-slate-200 text-slate-900">
+                                            <SelectItem value="all" className="text-slate-900 focus:bg-slate-100 focus:text-slate-900">All Colors</SelectItem>
+                                            <SelectItem value="BLACK" className="text-slate-900 focus:bg-slate-100 focus:text-slate-900">Black</SelectItem>
+                                            <SelectItem value="WHITE" className="text-slate-900 focus:bg-slate-100 focus:text-slate-900">White</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -520,12 +520,12 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
                                     <div className="space-y-2">
                                         <label className="text-sm font-medium">Select Event</label>
                                         <Select value={newEventSlug} onValueChange={setNewEventSlug}>
-                                            <SelectTrigger>
+                                            <SelectTrigger className="bg-white text-slate-900 border-slate-200">
                                                 <SelectValue placeholder="Choose Event" />
                                             </SelectTrigger>
-                                            <SelectContent>
+                                            <SelectContent className="bg-white border-slate-200 max-h-60 text-slate-900">
                                                 {mockEvents.map(e => (
-                                                    <SelectItem key={e.slug} value={e.slug}>{e.name}</SelectItem>
+                                                    <SelectItem key={e.slug} value={e.slug} className="text-slate-900 focus:bg-slate-100 focus:text-slate-900">{e.name}</SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
@@ -533,13 +533,13 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
                                     <div className="space-y-2">
                                         <label className="text-sm font-medium">Round</label>
                                         <Select value={newEventRound} onValueChange={setNewEventRound}>
-                                            <SelectTrigger>
+                                            <SelectTrigger className="bg-white text-slate-900 border-slate-200">
                                                 <SelectValue placeholder="Round/Stage" />
                                             </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="Prelims">Prelims</SelectItem>
-                                                <SelectItem value="Finals">Finals</SelectItem>
-                                                <SelectItem value="Medal Ceremony">Medal Ceremony</SelectItem>
+                                            <SelectContent className="bg-white border-slate-200 text-slate-900">
+                                                <SelectItem value="Prelims" className="text-slate-900 focus:bg-slate-100 focus:text-slate-900">Prelims</SelectItem>
+                                                <SelectItem value="Finals" className="text-slate-900 focus:bg-slate-100 focus:text-slate-900">Finals</SelectItem>
+                                                <SelectItem value="Medal Ceremony" className="text-slate-900 focus:bg-slate-100 focus:text-slate-900">Medal Ceremony</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -549,6 +549,7 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
                                             placeholder="e.g. Exam Hall"
                                             value={newEventLocation}
                                             onChange={(e) => setNewEventLocation(e.target.value)}
+                                            className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400"
                                         />
                                     </div>
                                     <Button
@@ -563,7 +564,7 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
                                         <Button
                                             variant="outline"
                                             onClick={resetLiveEventForm}
-                                            className="min-w-[80px]"
+                                            className="min-w-[80px] bg-white text-slate-900 border-slate-200 hover:bg-slate-100"
                                         >
                                             Cancel
                                         </Button>
@@ -602,7 +603,7 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
                                                                 variant="outline"
                                                                 size="sm"
                                                                 onClick={() => startEditing(event)}
-                                                                className="h-8"
+                                                                className="h-8 bg-white text-slate-900 border-slate-200 hover:bg-slate-100"
                                                             >
                                                                 Edit
                                                             </Button>

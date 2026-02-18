@@ -77,14 +77,16 @@ const signup = async (user: User, hCaptchaToken: string | null) => {
       return { ok: false, message: "Email already in use" };
 
     const hashedPassword = await bcrypt.hash(user.password, 12);
-    const newUser = { ...user, password: hashedPassword }
+    // Destructure referralCode to exclude it from the database write
+    const { referralCode, ...userData } = user;
+    const dbUser = { ...userData, password: hashedPassword };
 
-    await prisma.user.create({ data: newUser },);
+    await prisma.user.create({ data: dbUser });
 
-    if (user.referralCode) {
+    if (referralCode) {
       try {
         await prisma.campusAmbassador.update({
-          where: { referralCode: user.referralCode },
+          where: { referralCode: referralCode },
           data: { referralCount: { increment: 1 } },
         });
       } catch (err) {
@@ -102,7 +104,6 @@ const signup = async (user: User, hCaptchaToken: string | null) => {
       console.error(err);
       return { ok: false, message: "Error in login after signup, please login manually" };
     }
-
     return { ok: true, message: "Signup successful" };
   } catch (err) {
     console.error(err);
