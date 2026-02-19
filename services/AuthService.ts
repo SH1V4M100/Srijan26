@@ -3,6 +3,7 @@ import "server-only";
 import { User } from "@/types/types";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/prisma/client";
+import { UserRole } from "@prisma/client";
 import { auth, signIn, unstable_update } from "@/auth";
 import { redirect } from "next/navigation";
 import { CONST } from "@/utils/constants";
@@ -79,7 +80,11 @@ const signup = async (user: User, hCaptchaToken: string | null) => {
     const hashedPassword = await bcrypt.hash(user.password, 12);
     // Destructure referralCode to exclude it from the database write
     const { referralCode, ...userData } = user;
-    const dbUser = { ...userData, password: hashedPassword };
+    const dbUser = {
+      ...userData,
+      password: hashedPassword,
+      role: userData.role as UserRole
+    };
 
     await prisma.user.create({ data: dbUser });
 
