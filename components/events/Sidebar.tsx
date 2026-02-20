@@ -15,8 +15,6 @@ interface SidebarProps {
   setActiveStatus: (status: string) => void;
 }
 
-type DropdownSection = "categories" | "status" | null;
-
 const Sidebar: React.FC<SidebarProps> = ({
   categories,
   activeCategory,
@@ -25,17 +23,9 @@ const Sidebar: React.FC<SidebarProps> = ({
   activeStatus,
   setActiveStatus,
 }) => {
-  // Single state to manage which dropdown is open (defaults to "categories")
-  const [openSection, setOpenSection] = useState<DropdownSection>("categories");
-
-  // Derived booleans for easier readability in GSAP and render logic
-  const isCategoriesOpen = openSection === "categories";
-  const isStatusOpen = openSection === "status";
-
-  const toggleSection = (section: DropdownSection) => {
-    // If clicking the already open section, close it. Otherwise, open the new one.
-    setOpenSection((prev) => (prev === section ? null : section));
-  };
+  // Independent states for each dropdown
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(true);
+  const [isStatusOpen, setIsStatusOpen] = useState(false);
 
   // Refs for GSAP animations
   const categoriesRef = useRef<HTMLDivElement>(null);
@@ -87,12 +77,12 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside className="hidden lg:block w-64 shrink-0 space-y-8">
-      <div className="sticky top-24 space-y-8">
+      <div className="top-24 space-y-8">
         
         {/* Categories Section */}
         <div>
           <button
-            onClick={() => toggleSection("categories")}
+            onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
             className="w-full font-euclid text-lg mb-2 pb-2 flex items-center justify-between text-yellow-200 border-b border-white/20 hover:text-yellow-100 transition-colors"
           >
             <span>Categories</span>
@@ -127,7 +117,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* Status Section */}
         <div>
           <button
-            onClick={() => toggleSection("status")}
+            onClick={() => setIsStatusOpen(!isStatusOpen)}
             className="w-full font-euclid text-lg mb-2 pb-2 flex items-center justify-between text-yellow-200 border-b border-white/20 hover:text-yellow-100 transition-colors"
           >
             <span>Status</span>

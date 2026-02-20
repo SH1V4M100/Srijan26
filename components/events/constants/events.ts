@@ -15,13 +15,7 @@ export const CATEGORIES: Category[] = [
   "Gaming",
   "Esports",
   "Special Attractions",
-  // "Special Attractions1",
-  // "Special Attractions2",
-  // "Special Attractions3",
-  // "Special Attractions4",
-  // "Special Attractions5",
-  // "Special Attractions6",
-  // "Special Attractions7",
+  "Special Attractions1",
   "Misc",
 ];
 
