@@ -138,9 +138,19 @@ model Merchandise {
   id              String            @id @default(auto()) @map("_id") @db.ObjectId
   size            MerchandiseSize?
   color           MerchandiseColor?
-  status          PaymentStatus?
+  status          PaymentStatus?    @default(pending)
   preferredCampus Campus            @default(JADAVPUR)
   customText      String?
+
+  // Payment details
+  orderId     String?  @unique
+  amount      Float?
+  currency    String   @default("INR")
+  paymentId   String?  // Cashfree payment session ID or payment ID
+  couponUsed  Boolean  @default(false)
+  couponCode  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   userId   String    @db.ObjectId
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
