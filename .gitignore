@@ -41,7 +41,7 @@ yarn-error.log*
 .vercel
 
 unique_type.txt
-
+data/liveEvents.json
 
 # typescript
 *.tsbuildinfo
@@ -50,3 +50,4 @@ next-env.d.ts
 # Prisma generated client
 /src/generated/prisma/
 /prisma/generated/
+data/liveEvents.json

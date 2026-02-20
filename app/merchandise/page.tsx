@@ -250,7 +250,7 @@ export default function MerchandisePage() {
 
           <div className="text-white/80 space-y-3 md:space-y-4 font-euclid">
             <p className="text-lg md:text-[24px] leading-[120%]">
-              Presenting the Official Merchandise for Srijan’26!
+              Presenting the Official Merchandise for Srijan&apos;26!
             </p>
             <p className="text-base md:text-[22px] leading-[120%]">
               A polo t-shirt, available in black and white colors.
@@ -349,15 +349,15 @@ export default function MerchandisePage() {
                 onChange={(e) => handleInputChange("customText", e.target.value)}
                 className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-2.5 text-white focus:border-[#EBD87D] outline-none transition placeholder:text-white/20"
               />
-              <p className="text-[10px] text-white/40 italic">
+              {/* <p className="text-[10px] text-white/40 italic">
                 Allowed: A-Z, 0-9, spaces, @, #, ., (, ) | Batch codes/roll numbers are forbidden.
-              </p>
+              </p> */}
             </div>
 
-            <button
+            <Clickable
               type="submit"
               disabled={isLoading}
-              className="w-full bg-[#EBD87D] text-black font-bold py-3.5 rounded-xl text-lg tracking-wide hover:bg-orange-400 disabled:opacity-50 transition-all transform active:scale-95 flex items-center justify-center gap-2"
+              className="w-full bg-[#EBD87D] text-black uppercase text-lg tracking-wide hover:bg-[#EBD87D]/80 disabled:opacity-50 gap-2 h-12"
             >
               {isLoading ? (
                 <>
@@ -367,7 +367,7 @@ export default function MerchandisePage() {
               ) : (
                 "BUY NOW"
               )}
-            </button>
+            </Clickable>
           </form>
           {/* Form End */}
 
