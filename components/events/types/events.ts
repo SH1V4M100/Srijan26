@@ -3,7 +3,7 @@ export type Category =
   | "Coding"
   | "Circuits and Robotics"
   | "Business"
-  | "Brainstroming"
+  | "Brainstorming"
   | "Gaming"
   | "Esports"
   | "Special Attractions"
@@ -20,6 +20,7 @@ export interface Coordinator {
 export interface Event {
   // --- Core Metadata ---
   id: string;
+  slug: string;
   title: string;
   category: Category;
   color: string;

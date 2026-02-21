@@ -18,7 +18,7 @@ interface EventGridProps {
 
 const EventGrid: React.FC<EventGridProps> = ({ filteredEvents }) => {
   // We create a unique string based on the current items in the list. When the user changes a tag, this string changes.
-  const filterKey = filteredEvents.map((e) => e.id).join("-");
+  const filterKey = filteredEvents.map((e) => e.slug).join("-");
 
   // Force GSAP to recalculate trigger positions after the layout settles
   useGSAP(() => {
@@ -34,7 +34,7 @@ const EventGrid: React.FC<EventGridProps> = ({ filteredEvents }) => {
       {filteredEvents.length > 0 ? (
         filteredEvents.map((event) => (
           // By adding the filterKey to the React key, we force React to completely remount the cards when the category changes.
-          <React.Fragment key={`${filterKey}-${event.id}`}>
+          <React.Fragment key={`${filterKey}-${event.slug}`}>
             <EventCard event={event} />
             <EventCardTouch event={event} />
           </React.Fragment>

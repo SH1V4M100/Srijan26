@@ -77,7 +77,7 @@ export default function EventDetailsClient({ event }: Props) {
 
           {/* Right: Event Info */}
           <div className="lg:col-span-7 flex flex-col justify-center space-y-6">
-            
+
             {/* Tags / Badges */}
             <div className="flex flex-wrap gap-3">
               <span className="bg-white/10 border border-white/20 px-3 py-1 rounded text-xs uppercase tracking-wider text-white">
@@ -94,16 +94,16 @@ export default function EventDetailsClient({ event }: Props) {
               <p className="font-bold uppercase tracking-wider text-sm md:text-base flex items-center gap-2 text-white/70">
                 <Calendar size={16} stroke={event.color} />
                 Last Registration Date : {""}
-                <span  style={{ color: event.color }} >{event.lastDate ? event.lastDate : "To be decided yet"}</span>
+                <span style={{ color: event.color }} >{event.lastDate ? event.lastDate : "To be decided yet"}</span>
               </p>
 
               <h1
                 style={{ color: event.color }}
                 className="font-elnath text-5xl md:text-7xl font-bold uppercase tracking-wide"
               >
-                {event.id}{"."} {event.title}
+                {event.title}
               </h1>
-              
+
               <p className="mt-2 text-sm md:text-base text-white/70 leading-relaxed">
                 {event.description}
               </p>
@@ -214,7 +214,7 @@ export default function EventDetailsClient({ event }: Props) {
 
         {/* BOTTOM CONTENT SECTION */}
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-12 border-t border-white/10 pt-12">
-          
+
           {/* Event Rules Section */}
           <div className="lg:col-span-2 space-y-12">
             <div className="space-y-4">
@@ -277,7 +277,7 @@ export default function EventDetailsClient({ event }: Props) {
           </p>
 
           <div className="flex gap-2 sm:gap-4 w-fit">
-            <ShareButton eventId={event.id} eventTitle={event.title} />
+            <ShareButton eventId={event.slug} eventTitle={event.title} />
             <RegisterButton status={event.status} link={event.link} />
           </div>
         </div>

@@ -15,12 +15,16 @@ export default function EventNavigation({ event }: Props) {
     "--desktop-clip": CLIP_PATH,
   } as React.CSSProperties;
 
+  const currentIndex = EVENTS_DATA.findIndex((e) => e.slug === event.slug);
+  const prevEvent = currentIndex > 0 ? EVENTS_DATA[currentIndex - 1] : null;
+  const nextEvent = currentIndex < EVENTS_DATA.length - 1 ? EVENTS_DATA[currentIndex + 1] : null;
+
   return (
     <div className="flex justify-between items-center w-full z-20 relative pt-4">
       <div className="flex items-center gap-2 md:gap-4">
-        {parseInt(event.id) > 1 && (
+        {prevEvent && (
           <Link
-            href={`/events/${parseInt(event.id) - 1}`}
+            href={`/events/${prevEvent.slug}`}
             style={desktopClipStyle}
             className={`flex items-center gap-1 md:gap-2 bg-white/20 text-white hover:text-black hover:bg-white active:scale-[0.98] duration-150 transition-all uppercase text-xs font-euclid tracking-wider group px-4 py-2 md:pl-8 md:pr-14 md:py-2 rounded-full md:rounded-none md:[clip-path:var(--desktop-clip)]`}
           >
@@ -42,9 +46,9 @@ export default function EventNavigation({ event }: Props) {
       </div>
 
       <div>
-        {parseInt(event.id) < EVENTS_DATA.length && (
+        {nextEvent && (
           <Link
-            href={`/events/${parseInt(event.id) + 1}`}
+            href={`/events/${nextEvent.slug}`}
             style={desktopClipStyle}
             className={`flex items-center gap-1 md:gap-2 bg-white/20 text-white hover:text-black hover:bg-white active:scale-[0.98] duration-150 transition-all uppercase text-xs font-euclid tracking-wider group px-4 py-2 md:pl-10 md:pr-12 md:py-2 rounded-full md:rounded-none md:[clip-path:var(--desktop-clip)]`}
           >
