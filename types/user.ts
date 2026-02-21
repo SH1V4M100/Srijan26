@@ -1,4 +1,4 @@
-import { UserRole } from "@/prisma/generated/prisma/enums";
+import { UserRole } from "@prisma/client";
 
 type User = {
     id?: string;
@@ -34,4 +34,4 @@ type SessionUser = {
 
 
 
-export type {User, SessionUser};
+export type { User, SessionUser };

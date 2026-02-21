@@ -21,7 +21,6 @@ const RegistrationSchema = z.object({
     college: z.string().min(1, "College is required"),
     year: z.string().min(1, "Year of Study is required"),
     department: z.string().min(1, "Department is required"),
-    referralCode: z.string(),
 });
 
 function CompleteRegistration({ id }: { id: string }) {
@@ -38,14 +37,12 @@ function RegistrationForm({ id }: { id: string }) {
         college: "",
         year: "",
         department: "",
-        referralCode: "",
     });
     const [errors, setErrors] = useState({
         phone: "",
         college: "",
         year: "",
         department: "",
-        referralCode: "",
     });
     const [loading, setLoading] = useState(false);
     const router = useRouter();
@@ -65,7 +62,6 @@ function RegistrationForm({ id }: { id: string }) {
             college: "",
             department: "",
             year: "",
-            referralCode: "",
         });
         const isValid = RegistrationSchema.safeParse(data);
         if (!isValid.success) {
@@ -171,31 +167,7 @@ function RegistrationForm({ id }: { id: string }) {
                     <p className="text-sm text-red-500">{errors.year}</p>
                 )}
             </div>
-            <div className="flex flex-col items-center gap-2 relative w-full sm:w-1/3 2xl:w-1/4">
-                <div className="absolute -right-8 top-1/2 -translate-y-1/2">
-                    <Tooltip message="This is an optional field, in case you have a code given by a Campus Ambassador.">
-                        <p className="text-xs py-1 px-2.5 rounded-full bg-gray-300/40">
-                            i
-                        </p>
-                    </Tooltip>
-                </div>
-                <input
-                    type="text"
-                    name="referralCode"
-                    placeholder="Referral Code"
-                    value={data.referralCode}
-                    onChange={(e) =>
-                        handleChange("referralCode", e.target.value)
-                    }
-                    className="px-5 py-3 border border-yellow/70 rounded-full outline-none w-full"
-                />
 
-                {errors.referralCode && (
-                    <p className="text-sm text-red-500">
-                        {errors.referralCode}
-                    </p>
-                )}
-            </div>
             <Clickable
                 as="button"
                 type="submit"

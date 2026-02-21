@@ -1,4 +1,5 @@
 "use server";
+import "server-only";
 import { prisma } from "@/prisma/client";
 import { getUserByEmail } from "./AuthService";
 import ShortUniqueId from "short-unique-id";
@@ -17,54 +18,54 @@ type RegistrationData = {
 };
 
 const completeUserRegistration = withAuth(async (sessionUserId: string, data: RegistrationData, id: string) => {
-        try {
-            if(sessionUserId !== id){
-                signOut({
-                    redirectTo: "/login"
-                });
-                throw new Error("Invalid session - id mismatch");
-            }
-            await prisma.$transaction(async (txn) => {
-                await txn.user.update({
-                    where: {
-                        id,
-                    },
-                    data: {
-                        phone: data.phone,
-                        year: data.year,
-                        college: data.college,
-                        department: data.department,
-                        registrationComplete: true,
-                        emailVerified: new Date(),
-                    },
-                });
-                
-                if (data.referralCode) {
-                    try{
-                        await txn.campusAmbassador.update({
-                            where: {
-                                referralCode: data.referralCode,
-                            },
-                            data: {
-                                referralCount: {
-                                    increment: 1,
-                                },
-                            },
-                        });
-                    }catch(err){
-                        console.error(`Error while trying to increase referralCount - ${err}`);
-                    }
-                }
+    try {
+        if (sessionUserId !== id) {
+            signOut({
+                redirectTo: "/login"
             });
-            return { ok: true, message: "Registration completed" };
-        } catch (err) {
-            console.error(`Error in completing user registration: ${err}`);
-            return {
-                ok: false,
-                message: "Error occurred - failed to complete registration",
-            };
+            throw new Error("Invalid session - id mismatch");
         }
-    }); 
+        await prisma.$transaction(async (txn) => {
+            await txn.user.update({
+                where: {
+                    id,
+                },
+                data: {
+                    phone: data.phone,
+                    year: data.year,
+                    college: data.college,
+                    department: data.department,
+                    registrationComplete: true,
+                    emailVerified: new Date(),
+                },
+            });
+
+            if (data.referralCode) {
+                try {
+                    await txn.campusAmbassador.update({
+                        where: {
+                            referralCode: data.referralCode,
+                        },
+                        data: {
+                            referralCount: {
+                                increment: 1,
+                            },
+                        },
+                    });
+                } catch (err) {
+                    console.error(`Error while trying to increase referralCount - ${err}`);
+                }
+            }
+        });
+        return { ok: true, message: "Registration completed" };
+    } catch (err) {
+        console.error(`Error in completing user registration: ${err}`);
+        return {
+            ok: false,
+            message: "Error occurred - failed to complete registration",
+        };
+    }
+});
 
 const matchVerificationCode = withAuth(async (sessionUserId: string, email: string, code: string) => {
     try {
@@ -158,8 +159,8 @@ const resetPassword = async (
     token: string,
 ) => {
     try {
-        const existingToken = await prisma.resetPasswordToken.delete({ where: { token }, select: {user_id: true} });
-        if(existingToken.user_id !== userId) throw new Error("Invalid token - user id mismatch");
+        const existingToken = await prisma.resetPasswordToken.delete({ where: { token }, select: { user_id: true } });
+        if (existingToken.user_id !== userId) throw new Error("Invalid token - user id mismatch");
 
         const hashedPassword = await bcrypt.hash(password, 12);
         await prisma.user.update({

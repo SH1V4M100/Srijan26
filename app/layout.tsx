@@ -7,6 +7,7 @@ import NavBar from "@/components/NavBar";
 import { Toaster } from "react-hot-toast";
 import SmoothScroll from "@/components/Landing/SmoothScroll";
 import Footer from "@/components/Landing/Footer";
+import { SessionProvider } from "next-auth/react";
 
 const euclid = localFont({
     variable: "--font-euclid",
@@ -45,15 +46,17 @@ export default function RootLayout({
             <body
                 className={`${euclid.variable} ${elnath.variable} ${futura.variable} antialiased`}
             >
-                <SmoothScroll>
-                    <MobileNavProvider>
-                        <ConfirmationDialogContextProvider>
-                            <NavBar />
-                            {children}
-                            <Footer />
-                        </ConfirmationDialogContextProvider>
-                    </MobileNavProvider>
-                </SmoothScroll>
+                <SessionProvider>
+                    <SmoothScroll>
+                        <MobileNavProvider>
+                            <ConfirmationDialogContextProvider>
+                                <NavBar />
+                                {children}
+                                <Footer />
+                            </ConfirmationDialogContextProvider>
+                        </MobileNavProvider>
+                    </SmoothScroll>
+                </SessionProvider>
                 <Toaster
                     position="bottom-right"
                     toastOptions={{
