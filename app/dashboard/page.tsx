@@ -4,7 +4,6 @@ import VerifyEmail from "@/components/Dashboard/VerifyEmail";
 import { checkAuthentication, getUserByEmail } from "@/services/AuthService";
 import { SessionProvider } from "next-auth/react";
 import { redirect } from "next/navigation";
-import React from "react";
 
 async function Page() {
     const user = await checkAuthentication("/dashboard");

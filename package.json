@@ -12,6 +12,7 @@
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
     "@cashfreepayments/pg-react": "^1.0.3",
+    "@gsap/react": "^2.1.2",
     "@hcaptcha/react-hcaptcha": "^2.0.2",
     "@hookform/resolvers": "^5.2.2",
     "@prisma/client": "^6.19.0",
