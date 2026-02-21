@@ -1,0 +1,30 @@
+[
+    {
+        "slug": "hackathon",
+        "name": "Srijan Hackathon"
+    },
+    {
+        "slug": "roborace",
+        "name": "Robo Race"
+    },
+    {
+        "slug": "coding-contest",
+        "name": "Coding Contest"
+    },
+    {
+        "slug": "gaming-valorant",
+        "name": "Valorant"
+    },
+    {
+        "slug": "gaming-fifa",
+        "name": "FIFA 24"
+    },
+    {
+        "slug": "quiz",
+        "name": "General Quiz"
+    },
+    {
+        "slug": "debate",
+        "name": "Debate"
+    }
+]

@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { PrismaClient, UserRole } from "./generated/prisma/client";
+import { PrismaClient, UserRole } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -265,7 +265,6 @@ async function main() {
         memberIds: teamSeed.members.map((m) => m.id),
         leader: teamSeed.leader.id,
         joiningCode,
-        allowResetCode: true,
       },
     });
 

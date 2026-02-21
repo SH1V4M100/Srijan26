@@ -84,3 +84,45 @@ const getEventParticipantsBySlug = async (
 };
 
 export { getAdminEvents, getEventParticipantsBySlug };
+
+export const getAllUsers = async () => {
+  const users = await prisma.user.findMany({
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      college: true,
+      department: true,
+      year: true,
+      role: true,
+      emailVerified: true,
+      createdAt: true,
+    },
+  });
+  return users;
+};
+
+export const getAllMerchandise = async () => {
+  const merchandise = await prisma.merchandise.findMany({
+    where: {
+      status: "completed",
+    },
+    include: {
+      user: {
+        select: {
+          name: true,
+          email: true,
+          phone: true,
+          department: true,
+          year: true,
+        },
+      },
+    },
+    orderBy: {
+      id: "desc", // implicitly ordered by creation if id is auto-generated in a way that respects time, but ObjectId contains timestamp.
+    },
+  });
+  return merchandise;
+};
