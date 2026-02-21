@@ -166,28 +166,31 @@ model Merchandise {
  */
 
 type EventListing {
-  category String
-  description String
-  format String
-  rules String[]
-  dates String[]
-  prizes String[]
-  coordinators String[]
-  driveLink String?
-  poster String
-  tags String[]
+  category         String
+  description      String
+  format           String
+  rules            String[]
+  dates            String[]
+  prizes           String[]
+  prizePool        String
+  coordinators     String[]
+  driveLink        String?
+  poster           String
+  tags             String[]
+  registrationLink String?
 }
 
 model Event {
-  id         String @id @default(auto()) @map("_id") @db.ObjectId
-  slug       String @unique
-  name       String
-  minMembers Int
-  maxMembers Int
+  id               String        @id @default(auto()) @map("_id") @db.ObjectId
+  slug             String        @unique
+  name             String
+  minMembers       Int
+  maxMembers       Int
   eventListingData EventListing?
 
-  isVisible        Boolean @default(true)
-  registrationOpen Boolean @default(false)
+  isVisible            Boolean   @default(true)
+  registrationOpen     Boolean   @default(false)
+  registrationDeadline DateTime?
 
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt

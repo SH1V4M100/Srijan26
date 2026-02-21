@@ -1,52 +1,122 @@
-import { EventCategory, EventFormType, EventFrontendData } from "@/types/events";
+import {
+    EventCategory,
+    EventFormType,
+    EventPageData,
+} from "@/types/events";
 
-const eventCategories = ["CODING", "CIRCUITS_AND_ROBOTICS", "BUSINESS", "BRAINSTORMING", "GAMING","MISCELLANEOUS"];
+const eventCategories = [
+    "CODING",
+    "CIRCUITS_AND_ROBOTICS",
+    "BUSINESS",
+    "BRAINSTORMING",
+    "GAMING",
+    "MISCELLANEOUS",
+];
 
-function validateCategory(str: string): boolean | string {
-  if (eventCategories.includes(str)) return true;
+function validateCategory(
+    str: unknown,
+): boolean | string {
+    if (!str || typeof str !== "string") return false;
+    if (eventCategories.includes(str)) return true;
 
-  return "Invalid Event Category";
+    return "Invalid Event Category";
 }
 
-function transformCategory(str: string){
-  return str.toUpperCase();
+function transformCategory(str: string) {
+    return str.toUpperCase();
 }
 
-function formToEvent(formData: EventFormType):EventFrontendData{
-  const data:EventFrontendData = {
-      name: formData.name,
-      slug: formData.slug,
-      description: formData.description,
-      rules: [],
-      category: formData.category,
-      prizes: [],
-      registrationDeadline: formData.registrationDeadline,
-      teamSize: formData.teamSize,
-      eventDates: [],
-      organisers: formData.organisers
-  };
-  data.rules = formData.rules.map(rule=>rule.value);
-  data.prizes = formData.prizes.map(prize =>prize.value);
-  data.eventDates = formData.eventDates.map(eventDate=>eventDate.value);
-  return data;
+function formToEvent(formData: EventFormType): EventPageData {
+    const data: EventPageData = {
+        name: formData.name,
+        slug: formData.slug,
+        minMembers: parseInt(formData.minMembers),
+        maxMembers: parseInt(formData.maxMembers),
+        registrationDeadline: new Date(formData.registrationDeadline),
+        eventListingData: {
+            description: formData.description,
+            category: formData.category,
+            format: formData.format,
+            rules: formData.rules.map((rule) => rule.value),
+            dates: formData.eventDates.map((date) => date.value),
+            prizePool: formData.prizePool,
+            prizes: formData.prizes.map((prize) => prize.value),
+            coordinators: formData.coordinators.map(
+                (coordinator) => coordinator.value,
+            ),
+            driveLink: formData.driveLink,
+            poster: `/posters/${formData.slug}.webp`,
+            tags: formData.tags.map((tag) => tag.value),
+            registrationLink: formData.registrationLink,
+        },
+    };
+    return data;
 }
 
-function eventToForm(eventData: EventFrontendData):EventFormType{
-  const data:EventFormType = {
-      name: eventData.name,
-      slug: eventData.slug,
-      description: eventData.eventListingData.description,
-      rules: [],
-      category: eventData.eventListingData.category as EventCategory,
-      prizes: [],
-      eventDates: [],
-      coordinators: []
-  };
-  data.rules = eventData.eventListingData.rules.map((rule: string)=>({value:rule}));
-  data.prizes = eventData.eventListingData.prizes.map((prize: string) =>({value:prize}));
-  data.eventDates = eventData.eventListingData.dates.map((eventDate: string)=>({value: eventDate}));
-  data.coordinators = eventData.eventListingData.coordinators.map((coordinator: string) => ({value: coordinator}));
-  return data;
+function eventToForm(eventData: EventPageData): EventFormType {
+    const { eventListingData, name, slug, minMembers, maxMembers, registrationDeadline } = eventData;
+    const {
+        description = "",
+        category,
+        format = "",
+        driveLink = "",
+        prizePool = "",
+        registrationLink = "",
+        dates = [],
+        rules = [],
+        prizes = [],
+        coordinators = [],
+        tags = []
+    } = eventListingData ?? {};
+
+    const mapToValue = (arr: string[]) => arr.map((value) => ({ value }));
+
+    const data: EventFormType = {
+        name,
+        slug,
+        description,
+        category: category as EventCategory,
+        minMembers: String(minMembers),
+        maxMembers: String(maxMembers),
+        format,
+        driveLink,
+        eventDates: mapToValue(dates),
+        rules: mapToValue(rules),
+        prizes: mapToValue(prizes),
+        coordinators: mapToValue(coordinators),
+        registrationDeadline: registrationDeadline.toDateString(),
+        prizePool,
+        tags: mapToValue(tags),
+        registrationLink
+    };
+    return data;
 }
 
-export {validateCategory, transformCategory, formToEvent, eventToForm}
+const getDefaultData = (slug: string | undefined): EventFormType => {
+    return {
+        name: "",
+        slug: slug ?? "",
+        description: "",
+        format: "",
+        rules: [{ value: "" }],
+        category: "",
+        prizes: [{ value: "" }],
+        registrationDeadline: "",
+        eventDates: [{ value: "" }],
+        coordinators: [{ value: "" }],
+        minMembers: "",
+        maxMembers: "",
+        prizePool: "",
+        tags: [{ value: "" }],
+        registrationLink: "",
+        driveLink: "",
+    };
+};
+
+export {
+    validateCategory,
+    transformCategory,
+    formToEvent,
+    eventToForm,
+    getDefaultData,
+};

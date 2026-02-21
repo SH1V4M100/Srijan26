@@ -26,37 +26,49 @@ enum RegistrationStatus {
 }
 
 type EventCategory =
-  | "CODING"
-  | "CIRCUITS_AND_ROBOTICS"
-  | "BUSINESS"
-  | "BRAINSTORMING"
-  | "GAMING"
-  | "MISCELLANEOUS";
+  ""
+  | "Coding"
+  | "Circuits and Robotics"
+  | "Business"
+  | "Brainstorming"
+  | "Gaming"
+  | "E-Sports"
+  | "Special Attractions"
+  | "Miscellaneous";
 
 type StringObj = {
   value: string;
 }
 
-type EventFrontendData = {
+type EventPageData = {
   name: string;
   slug: string;
+  minMembers: number;
+  maxMembers: number;
+  isVisible?: boolean;
+  registrationOpen?: boolean;
+  registrationDeadline: Date;
   eventListingData: EventListing | null
 }
 
 type EventFormType = {
   name: string;
   slug: string;
+  minMembers: string;
+  maxMembers: string;
+  category: EventCategory;
   description: string;
   format: string;
-  driveLink?: string;
+  driveLink: string | null;
   rules: StringObj[];
-  category: EventCategory;
   prizes: StringObj[];
   registrationDeadline: string;
-  teamSize: string;
   eventDates: StringObj[];
   coordinators: StringObj[];
+  prizePool: string;
+  tags: StringObj[];
+  registrationLink: string | null;
 }
 
-export type { EventFrontendData, EventCategory, EventFormType, Event, Team };
+export type { EventPageData, EventCategory, EventFormType, Event, Team, StringObj };
 export { RegistrationStatus };
