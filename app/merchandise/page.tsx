@@ -11,13 +11,7 @@ import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { usePayment } from "@/hooks/usePayment";
-import { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Merchandise | SRIJAN'26",
-  description:
-    "Official Merchandise for SRIJAN'26, the annual Techno-Management fest of Jadavpur University. Polo t-shirt available in black and white colors.",
-};
 
 // export default function MerchandisePage() {
 //   return (
