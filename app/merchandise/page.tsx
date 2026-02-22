@@ -12,6 +12,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { usePayment } from "@/hooks/usePayment";
 
+
 // export default function MerchandisePage() {
 //   return (
 //     <main className="full-bleed min-h-screen bg-[url('/bg.jpg')] bg-cover bg-center relative text-white">

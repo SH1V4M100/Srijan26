@@ -22,8 +22,8 @@ export function HeroSection() {
           Time Remaining
         </h3>
         {/* <CountDown targetDate={new Date("2024-02-29T00:00:00")} /> */}
-        <Countdown targetDate={new Date("2026-04-17T00:00:00").getTime()} />
-        <p className="text-2xl font-elnath p-2">17 - 25 April, 2026</p>
+        <Countdown targetDate={new Date("2026-04-09T10:00:00").getTime()} />
+        <p className="text-2xl font-elnath p-2">9 - 12 April, 2026</p>
         <Clickable
           as="a"
           href="/register"

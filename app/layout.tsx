@@ -31,9 +31,37 @@ const futura = localFont({
 });
 
 export const metadata: Metadata = {
-    title: "Srijan 26 | Jadavpur University",
+    title: "SRIJAN'26 | Jadavpur University",
     description:
-        "Jadavpur University's Annual Techfest, organised by F.E.T.S.U.",
+        "F.E.T.S.U. presents SRIJAN'26, the annual Techno-Management fest of Jadavpur University. Participate in over 50+ events comprising genres of Coding, Gaming, Management, Brainstorming and many more. Since it's inception in 2007, Srijan has held a plethora of events, and collecting the best ideas & minds of Kolkata ever since",
+    keywords: ["SRIJAN'26", "Jadavpur University", "Kolkata", "Fest", "Techfest", "Management events", "skills", "comedy show", "concert", "DJ night", "workshop", "seminar", "FETSU", "Techno-Management Fest", "Coding", "Gaming", "Management", "Brainstorming"],
+    authors: [{ name: "FETSU" }],
+    creator: "FETSU",
+    publisher: "FETSU",
+    openGraph: {
+        title: "SRIJAN'26 | Jadavpur University",
+        description:
+            "F.E.T.S.U. presents SRIJAN'26, the annual Techno-Management fest of Jadavpur University. Participate in over 50+ events comprising genres of Coding, Gaming, Management, Brainstorming and many more. Since it's inception in 2007, Srijan has held a plethora of events, and collecting the best ideas & minds of Kolkata ever since",
+        url: "https://srijanju.in",
+        siteName: "SRIJAN'26",
+        images: [
+            {
+                url: "https://srijanju.in/opengraph.webp",
+                width: 1200,
+                height: 640,
+                alt: "SRIJAN'26 | Jadavpur University",
+            },
+        ],
+        locale: "en_US",
+        type: "website",
+    },
+    twitter: {
+        title: "SRIJAN'26 | Jadavpur University",
+        description:
+            "F.E.T.S.U. presents SRIJAN'26, the annual Techno-Management fest of Jadavpur University. Participate in over 50+ events comprising genres of Coding, Gaming, Management, Brainstorming and many more. Ever since it's inception in 2007, Srijan has held a plethora of events, and collecting the best ideas & minds of Kolkata ever since",
+        creator: "FETSU",
+        images: ["https://srijanju.in/opengraph.webp"],
+    },
 };
 
 export default function RootLayout({

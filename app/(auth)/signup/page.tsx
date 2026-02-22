@@ -12,6 +12,7 @@ import Tooltip from "@/components/Tooltip";
 import Balls from "@/components/Balls";
 import { Clickable } from "@/components/Clickable";
 
+
 function Page() {
     return (
         <HCaptchaProvider sitekey={CONST.hcaptcha.SITEKEY} size="invisible">

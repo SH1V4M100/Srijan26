@@ -3,7 +3,7 @@ export type Category =
   | "Coding"
   | "Circuits and Robotics"
   | "Business"
-  | "Brainstroming"
+  | "Brainstorming"
   | "Gaming"
   | "Esports"
   | "Specials1"
