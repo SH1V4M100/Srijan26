@@ -1,7 +1,7 @@
 "use client";
 
 import { useCountdown } from "@/hooks/useCountDown";
-import type { CSSProperties } from "react";
+import { CSSProperties, useEffect, useState } from "react";
 
 const DateTimeDisplay = ({ value, type }: { value: number; type: string }) => {
   return (
@@ -12,7 +12,7 @@ const DateTimeDisplay = ({ value, type }: { value: number; type: string }) => {
           aria-live="polite"
           aria-label={`${value ?? 0}`}
         >
-          `{value ?? 0}`
+          {value ?? 0}
         </span>
       </span>
       {type}
@@ -23,6 +23,13 @@ const DateTimeDisplay = ({ value, type }: { value: number; type: string }) => {
 // time is in ms
 export const Countdown = ({ targetDate }: { targetDate: number }) => {
   const [days, hours, minutes, seconds] = useCountdown(targetDate);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
     <div className="flex justify-center items gap-2 p-2">
