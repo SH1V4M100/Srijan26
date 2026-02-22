@@ -6,8 +6,15 @@ export type Category =
   | "Brainstorming"
   | "Gaming"
   | "Esports"
-  | "Special Attractions"
-  | "Special Attractions1"
+  | "Specials1"
+  | "Specials2"
+  | "Specials3"
+  | "Specials4"
+  | "Specials5"
+  | "Specials6"
+  | "Specials7"
+  | "Specials8"
+  | "Specials9"
   | "Misc";
 
 export type EventStatus = "All" | "Open" | "Closed" | "Coming Soon";

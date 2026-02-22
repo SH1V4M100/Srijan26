@@ -6,10 +6,12 @@ import Header from "@/components/events/Header";
 import Sidebar from "@/components/events/Sidebar";
 import MobileFilter from "@/components/events/MobileFilter";
 import EventGrid from "@/components/events/EventGrid";
-import { EVENTS_DATA, CATEGORIES, STATUSES } from "@/components/events/constants/events";
+import {
+  EVENTS_DATA,
+  CATEGORIES,
+  STATUSES,
+} from "@/components/events/constants/events";
 import { Category } from "@/components/events/types/events";
-
-
 
 export default function EventsPage() {
   const [activeCategory, setActiveCategory] = useState<Category>("All");
@@ -28,14 +30,14 @@ export default function EventsPage() {
     const matchesSearch =
       event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       event.tags.some((tag) =>
-        tag.toLowerCase().includes(searchQuery.toLowerCase())
+        tag.toLowerCase().includes(searchQuery.toLowerCase()),
       );
 
     return matchesCategory && matchesSearch && matchesStatus;
   });
 
   return (
-    <div className="relative min-h-screen text-white font-sans selection:bg-orange-400 selection:text-white">
+    <div className="relative min-h-screen text-white font-sans selection:bg-orange-400 selection:text-white ">
       {/* Background Gradient */}
       <WavyGradient
         color1="#F09400"
@@ -50,7 +52,7 @@ export default function EventsPage() {
 
       <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
-      <main className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 p-6">
+      <main className="w-full mx-auto flex flex-col lg:flex-row gap-8 p-6">
         <Sidebar
           categories={CATEGORIES}
           activeCategory={activeCategory}
@@ -70,7 +72,9 @@ export default function EventsPage() {
           setActiveStatus={setActiveStatus}
         />
 
-        <EventGrid filteredEvents={filteredEvents} />
+        <div className="flex-1 min-w-0">
+          <EventGrid filteredEvents={filteredEvents} />
+        </div>
       </main>
     </div>
   );

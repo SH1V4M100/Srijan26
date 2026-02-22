@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
-@layer base {
+/* @layer base {
   ::-webkit-scrollbar {
     display: none;
-  }
+  } */
 
   /* For Firefox */
-  * {
+  /* * {
     scrollbar-width: none;
   }
-}
+} */
 
 :root {
   --background: #160505;

@@ -32,7 +32,7 @@ const RegisterButton: React.FC<RegisterButtonProps> = ({ status, link, isCard })
       href={link}
       style={desktopClipStyle}
       // ADDED: active:scale-[0.98] active:bg-red-800
-      className={`text-white font-euclid uppercase font-bold tracking-wider transition-all duration-150 flex items-center justify-center gap-2 bg-red hover:bg-red-700 active:scale-[0.98] active:bg-red-800
+      className={`text-white font-euclid uppercase font-bold tracking-wider transition-all duration-150 flex items-center justify-center gap-2 bg-red hover:bg-red-700 active:bg-red-800
         ${isCard
           ? "py-2 w-full text-xs [clip-path:var(--desktop-clip)]"
           : "sm:flex-none px-6 py-2 md:pl-10 md:pr-16 md:py-2 lg:text-sm text-xs rounded-full md:rounded-none md:[clip-path:var(--desktop-clip)]"

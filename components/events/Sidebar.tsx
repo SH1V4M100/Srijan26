@@ -5,6 +5,7 @@ import { ChevronDown } from "lucide-react";
 import gsap from "gsap";
 import { Category } from "@/components/events/types/events";
 import { CLIP_PATH } from "./constants/events";
+import CustomScrollArea from "./CustomScrollArea";
 
 interface SidebarProps {
   categories: Category[];
@@ -25,15 +26,14 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   // Independent states for each dropdown
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(true);
-  const [isStatusOpen, setIsStatusOpen] = useState(false);
+  const [isStatusOpen, setIsStatusOpen] = useState(true);
 
   // Refs for GSAP animations
-  const categoriesRef = useRef<HTMLDivElement>(null);
   const statusRef = useRef<HTMLDivElement>(null);
 
   // Animate Categories Dropdown
   useEffect(() => {
-    const el = categoriesRef.current;
+    const el = ".categoriesClass";
     if (!el) return;
 
     if (isCategoriesOpen) {
@@ -76,9 +76,11 @@ const Sidebar: React.FC<SidebarProps> = ({
   }, [isStatusOpen]);
 
   return (
-    <aside className="hidden lg:block w-64 shrink-0 space-y-8">
-      <div className="top-24 space-y-8">
-        
+    <aside
+      className="hidden lg:block w-75 shrink-0 sticky top-24 self-start h-[calc(100vh-12rem)] overflow-hidden"
+      onWheel={(e) => e.stopPropagation()}
+    >
+      <div className="space-y-4 h-full overflow-y-auto overscroll-y-contain pr-2">
         {/* Categories Section */}
         <div>
           <button
@@ -94,8 +96,10 @@ const Sidebar: React.FC<SidebarProps> = ({
             />
           </button>
 
-          <div ref={categoriesRef} className="overflow-hidden">
-            <div className="flex flex-col gap-2 pt-2">
+          <CustomScrollArea
+            className="categoriesClass relative overflow-y-auto max-h-[30vh] mask-[linear-gradient(to_bottom,black_calc(100%-40px),transparent_100%)]"
+          >
+            <div className="flex flex-col gap-1 pt-2 pb-8">
               {categories.map((cat) => (
                 <button
                   key={cat}
@@ -111,7 +115,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 </button>
               ))}
             </div>
-          </div>
+          </CustomScrollArea>
         </div>
 
         {/* Status Section */}
@@ -129,8 +133,8 @@ const Sidebar: React.FC<SidebarProps> = ({
             />
           </button>
 
-          <div ref={statusRef} className="overflow-hidden">
-            <div className="flex flex-col gap-2 pt-2">
+          <div ref={statusRef} className="pr-3 overflow-hidden">
+            <div className="flex flex-col gap-1 pt-2">
               {statuses.map((status) => (
                 <button
                   key={status}

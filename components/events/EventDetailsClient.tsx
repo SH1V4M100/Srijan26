@@ -1,26 +1,22 @@
 "use client";
 
-import React, { useRef } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import React, { useRef, useCallback } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import {
-  Calendar,
-  Users,
-  Trophy,
-  MapPin,
-  Phone,
-  ChevronLeft,
-  ChevronRight,
-  Award,
-} from "lucide-react";
 import { Event } from "@/components/events/types/events";
-import { CLIP_PATH, EVENTS_DATA, IMAGE_CLIP_PATH } from "./constants/events";
+
+// Custom Components
 import EventDetailImage from "./EventDetailImage";
 import WavyGradient from "../WavyGradient";
-import ShareButton from "./ShareButton";
-import RegisterButton from "./RegisterButton";
 import EventNavigation from "./EventNavigation";
+import EventTags from "./EventTags";
+import EventTitleBlock from "./EventTitleBlock";
+import EventDetailsBox from "./EventDetailsBox";
+import EventPrizePool from "./EventPrizePool";
+import EventRules from "./EventRules";
+import EventContact from "./EventContact";
+import FloatingActionBar from "./FloatingActionBar";
 
 interface Props {
   event: Event;
@@ -28,25 +24,47 @@ interface Props {
 
 export default function EventDetailsClient({ event }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
-  // CSS Variable approach for the Nav arrows
-  const desktopClipStyle = { "--desktop-clip": CLIP_PATH } as React.CSSProperties;
+  const transitionTo = useCallback(
+    (url: string) => {
+      const tl = gsap.timeline();
 
-  useGSAP(() => {
-    // Basic entry animation for the page
-    gsap.fromTo(
-      containerRef.current,
-      { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" },
-    );
-  }, []);
+      // EXIT ANIMATION: Content wipes away from Left to Right
+      tl.fromTo(
+        // Notice we are targeting our new content wrapper class
+        ".clip-reveal-content",
+        {
+          // Start State: Fully visible
+          clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
+        },
+        {
+          // End State: Clipped completely to the right edge (invisible)
+          clipPath: "polygon(100% 0%, 100% 0%, 100% 100%, 100% 100%)",
+          duration: 0.5,
+          ease: "power3.in",
+          onComplete: () => {
+            router.push(url); // Change the page once fully hidden
+          },
+        },
+      );
+      tl.to(
+        ".gsap-animate",
+        {
+          autoAlpha: 0,
+          duration: 0.6,
+          ease: "power3.inOut",
+        },
+        "<",
+      );
+    },
+    [router],
+  );
 
   return (
-    <main
-      className={`min-h-screen text-white pb-32 px-6 md:px-12 lg:px-24 font-euclid selection:bg-orange-400 selection:text-white`}
-    >
-      {/* Background Gradient */}
+    <main className="min-h-screen text-white pb-32 px-6 md:px-12 lg:px-24 font-euclid selection:bg-orange-400 selection:text-white">
       <WavyGradient
+        className="gsap-animate"
         brightness={0.5}
         color1="#F09400"
         color2="#A80000"
@@ -58,230 +76,43 @@ export default function EventDetailsClient({ event }: Props) {
         waveAmplitude={1}
       />
 
-      <div ref={containerRef} className="max-w-7xl mx-auto space-y-8">
-        {/* EVENT NAVIGATION ARROWS */}
-        <EventNavigation event={event} />
+      <div ref={containerRef} className="relative max-w-7xl mx-auto space-y-8">
+        <EventNavigation event={event} onNavigate={transitionTo} />
 
-        {/* TOP HERO SECTION */}
-        <section className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mt-12">
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           {/* Left: Image */}
           <div className="relative lg:col-span-5 w-full flex justify-center lg:justify-start">
-            <EventDetailImage
-              src={event.image}
-              alt={event.title}
-            />
-            {/* <p className="absolute top-0 left-0 font-elnath text-4xl w-20 h-20 -z-10">
-              {event.id}
-            </p> */}
+            <EventDetailImage src={event.image} alt={event.title} />
           </div>
 
           {/* Right: Event Info */}
           <div className="lg:col-span-7 flex flex-col justify-center space-y-6">
+            <EventTags category={event.category} />
 
-            {/* Tags / Badges */}
-            <div className="flex flex-wrap gap-3">
-              <span className="bg-white/10 border border-white/20 px-3 py-1 rounded text-xs uppercase tracking-wider text-white">
-                Srijan '26
-              </span>
-              <span className="bg-white/10 border border-white/20 px-3 py-1 rounded text-xs uppercase tracking-wider text-white">
-                {event.category}
-              </span>
-            </div>
-
-            {/* Title Block with LAST REGISTRATION DATE */}
-            <div className="flex flex-col gap-2">
-              {/* Added Last Registration Date right here */}
-              <p className="font-bold uppercase tracking-wider text-sm md:text-base flex items-center gap-2 text-white/70">
-                <Calendar size={16} stroke={event.color} />
-                Last Registration Date : {""}
-                <span style={{ color: event.color }} >{event.lastDate ? event.lastDate : "To be decided yet"}</span>
-              </p>
-
-              <h1
-                style={{ color: event.color }}
-                className="font-elnath text-5xl md:text-7xl font-bold uppercase tracking-wide"
-              >
-                {event.title}
-              </h1>
-
-              <p className="mt-2 text-sm md:text-base text-white/70 leading-relaxed">
-                {event.description}
-              </p>
-            </div>
+            <EventTitleBlock
+              id={event.id}
+              title={event.title}
+              description={event.description}
+              color={event.color}
+              lastDate={event.lastDate}
+            />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-0 backdrop-blur-sm mt-4">
-              {/* Event Details Box */}
-              <div className="space-y-4 text-white">
-                <h3
-                  style={{
-                    color: event.color,
-                    borderBottom: `2px solid ${event.color}`,
-                  }}
-                  className="font-elnath text-xl uppercase border-b-2 border-white/80 pb-2 inline-block"
-                >
-                  Event Details
-                </h3>
-                <div className="space-y-3 text-sm">
-                  {event.lastDate && !event.prelimsDate && !event.finalsDate && (
-                    <div className="flex items-center gap-3">
-                      <Calendar className="w-4 h-4" style={{ color: event.color }} />
-                      <span>{event.lastDate}</span>
-                    </div>
-                  )}
-                  {event.prelimsDate && (
-                    <div className="flex items-center gap-3">
-                      <Calendar className="w-4 h-4" style={{ color: event.color }} />
-                      <span>Prelims: {event.prelimsDate}</span>
-                    </div>
-                  )}
-                  {event.finalsDate && (
-                    <div className="flex items-center gap-3">
-                      <Calendar className="w-4 h-4" style={{ color: event.color }} />
-                      <span>Finals: {event.finalsDate}</span>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-3">
-                    <MapPin className="w-4 h-4" style={{ color: event.color }} />
-                    <span>{event.format}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Users className="w-4 h-4" style={{ color: event.color }} />
-                    <span>{event.teamSize}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Prize Pool Box */}
-              <div className="space-y-4">
-                <h3
-                  style={{
-                    color: event.color,
-                    borderBottom: `2px solid ${event.color}`,
-                  }}
-                  className="font-elnath text-xl uppercase border-b-2 border-white/80 pb-2 inline-block"
-                >
-                  Prize Pool
-                </h3>
-                <div className="flex items-center gap-4">
-                  <span
-                    className="text-4xl font-bold tracking-wider"
-                    style={{ color: event.color }}
-                  >
-                    {event.prizePool}
-                  </span>
-                </div>
-                {(event.winnerPrize || event.runnersUpPrize || event.secondRunnersUpPrize) && (
-                  <div className="space-y-2 pt-2 text-base text-gray-300">
-                    {event.winnerPrize && (
-                      <div className="flex items-center gap-2">
-                        <Award size={20} style={{ color: event.color }} />
-                        <p className="uppercase tracking-wider">
-                          1st Prize:{" "}
-                          <span className="font-bold text-white tracking-wider">
-                            {event.winnerPrize}
-                          </span>
-                        </p>
-                      </div>
-                    )}
-                    {event.runnersUpPrize && (
-                      <div className="flex items-center gap-2">
-                        <Award size={20} style={{ color: event.color }} />
-                        <p className="uppercase tracking-wider">
-                          2nd Prize:{" "}
-                          <span className="font-bold text-white tracking-wider">
-                            {event.runnersUpPrize}
-                          </span>
-                        </p>
-                      </div>
-                    )}
-                    {event.secondRunnersUpPrize && (
-                      <div className="flex items-center gap-2">
-                        <Award size={20} style={{ color: event.color }} />
-                        <p className="uppercase tracking-wider">
-                          3rd Prize:{" "}
-                          <span className="font-bold text-white tracking-wider">
-                            {event.secondRunnersUpPrize}
-                          </span>
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+              <EventDetailsBox event={event} />
+              <EventPrizePool event={event} />
             </div>
           </div>
         </section>
 
-        {/* BOTTOM CONTENT SECTION */}
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-12 border-t border-white/10 pt-12">
-
-          {/* Event Rules Section */}
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-12 pt-12">
           <div className="lg:col-span-2 space-y-12">
-            <div className="space-y-4">
-              <h2 className="font-elnath text-3xl uppercase" style={{ color: event.color }}>
-                Event Rules
-              </h2>
-              <ul className="space-y-3 text-white">
-                {event.rules.map((rule, index) => (
-                  <li key={index} className="flex items-start gap-3">
-                    <span
-                      className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0"
-                      style={{ backgroundColor: event.color }}
-                    />
-                    <span className="leading-relaxed">{rule}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <EventRules rules={event.rules} color={event.color} />
           </div>
-
-          {/* Contact Section */}
-          <div className="space-y-6">
-            <h2 className="font-elnath text-3xl uppercase border-b pb-2" style={{ color: event.color }}>
-              Contact
-            </h2>
-            <div className="space-y-2">
-              {event.coordinators.map((coord, index) => (
-                <div key={index} className="py-2 flex items-center justify-between">
-                  <span className="text-gray-200">{coord.name}</span>
-                  <a
-                    href={`tel:${coord.contact}`}
-                    className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
-                  >
-                    <Phone size={16} strokeWidth={2} />
-                    {coord.contact}
-                  </a>
-                </div>
-              ))}
-            </div>
-          </div>
+          <EventContact coordinators={event.coordinators} color={event.color} />
         </section>
       </div>
 
-      {/* FLOATING ACTION BAR */}
-      <div className="fixed bottom-0 left-0 w-full bg-[#121212] p-4 z-50">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          <p className="text-gray-400 text-left text-sm font-bold uppercase tracking-wider">
-            Status:{" "}
-            <span
-              className={
-                event.status === "Open"
-                  ? "text-green-400"
-                  : event.status === "Closed"
-                    ? "text-red-400"
-                    : "text-yellow-300"
-              }
-            >
-              {event.status}
-            </span>
-          </p>
-
-          <div className="flex gap-2 sm:gap-4 w-fit">
-            <ShareButton eventId={event.slug} eventTitle={event.title} />
-            <RegisterButton status={event.status} link={event.link} />
-          </div>
-        </div>
-      </div>
+      <FloatingActionBar event={event} />
     </main>
   );
 }

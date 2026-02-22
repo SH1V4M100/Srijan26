@@ -251,7 +251,7 @@ const EventCard: React.FC<EventCardProps> = memo(({ event }) => {
               <Link
                 href={`/events/${event.slug}`}
                 style={{ clipPath: CLIP_PATH }}
-                className="font-euclid text-xs uppercase font-bold flex items-center justify-center py-2 gap-2 rounded bg-white hover:bg-yellow-300 active:scale-[0.98] duration-200 transition-all text-black"
+                className="font-euclid text-xs uppercase font-bold flex items-center justify-center py-2 gap-2 rounded bg-white hover:bg-yellow-300 active:bg-yellow-500 duration-200 transition-all text-black"
                 title="More Info"
               >
                 <p>More Info</p>
@@ -259,7 +259,7 @@ const EventCard: React.FC<EventCardProps> = memo(({ event }) => {
               </Link>
 
               <ShareButton
-                eventId={event.slug}
+                eventSlug={event.slug}
                 eventTitle={event.title}
                 isCard={true}
               />

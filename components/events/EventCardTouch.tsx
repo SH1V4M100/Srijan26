@@ -265,7 +265,7 @@ const EventCardTouch: React.FC<EventCardTouchProps> = memo(({ event }) => {
               </Link>
 
               <ShareButton
-                eventId={event.slug}
+                eventSlug={event.slug}
                 eventTitle={event.title}
                 isCard={true}
               />

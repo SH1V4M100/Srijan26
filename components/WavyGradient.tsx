@@ -1,5 +1,7 @@
 "use client";
 
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
 import React, { useEffect, useRef } from "react";
 
 interface WavyGradientProps {
@@ -26,6 +28,8 @@ interface WavyGradientProps {
   waveHeight?: number;
   /** Overall brightness multiplier - Default: 1.0 */
   brightness?: number;
+
+  className?: string;
 }
 
 const WavyGradient: React.FC<WavyGradientProps> = ({
@@ -42,10 +46,12 @@ const WavyGradient: React.FC<WavyGradientProps> = ({
   waveFrequency = 7.0,
   waveAmplitude = 1.7,
   noiseIntensity = 3,
-  waveHeight = 0.5, 
-  
+  waveHeight = 0.5,
+
   // LIGHTING CONTROLS
   brightness = 1.0, // New default
+
+  className = "",
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -56,6 +62,18 @@ const WavyGradient: React.FC<WavyGradientProps> = ({
     const b = (bigint & 255) / 255;
     return [r, g, b];
   };
+
+  useGSAP(() => {
+    if (!canvasRef.current) return;
+
+    // This perfectly reverses your exit animation!
+    // It starts at opacity 0 and fades in over 0.6 seconds.
+    gsap.from(canvasRef.current, {
+      autoAlpha: 0,
+      duration: 0.6,
+      ease: "power3.inOut",
+    });
+  });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -193,7 +211,7 @@ const WavyGradient: React.FC<WavyGradientProps> = ({
     gl.bufferData(
       gl.ARRAY_BUFFER,
       new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
-      gl.STATIC_DRAW
+      gl.STATIC_DRAW,
     );
 
     const posLoc = gl.getAttribLocation(program, "position");
@@ -209,7 +227,7 @@ const WavyGradient: React.FC<WavyGradientProps> = ({
       freq: gl.getUniformLocation(program, "uWaveFreq"),
       amp: gl.getUniformLocation(program, "uWaveAmp"),
       noise: gl.getUniformLocation(program, "uNoiseStr"),
-      height: gl.getUniformLocation(program, "uWaveHeight"), 
+      height: gl.getUniformLocation(program, "uWaveHeight"),
       brightness: gl.getUniformLocation(program, "uBrightness"), // New Location
     };
 
@@ -230,7 +248,7 @@ const WavyGradient: React.FC<WavyGradientProps> = ({
       gl.uniform1f(locs.freq, waveFrequency);
       gl.uniform1f(locs.amp, waveAmplitude);
       gl.uniform1f(locs.noise, noiseIntensity);
-      gl.uniform1f(locs.height, waveHeight); 
+      gl.uniform1f(locs.height, waveHeight);
       gl.uniform1f(locs.brightness, brightness); // Pass brightness prop to shader
 
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -270,14 +288,14 @@ const WavyGradient: React.FC<WavyGradientProps> = ({
     waveFrequency,
     waveAmplitude,
     noiseIntensity,
-    waveHeight, 
+    waveHeight,
     brightness, // Added dependency
   ]);
 
   return (
     <canvas
       ref={canvasRef}
-      className="fixed bottom-0 left-0 right-0 w-full h-[120vh] -z-10"
+      className={` ${className} fixed bottom-0 left-0 right-0 w-full h-[120vh] -z-10`}
       style={{ width: "100%", height: "100%", pointerEvents: "none" }}
     />
   );
