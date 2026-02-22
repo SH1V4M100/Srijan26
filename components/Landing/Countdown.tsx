@@ -12,7 +12,7 @@ const DateTimeDisplay = ({ value, type }: { value: number; type: string }) => {
           aria-live="polite"
           aria-label={`${value ?? 0}`}
         >
-          {value ?? 0}
+          `{value ?? 0}`
         </span>
       </span>
       {type}

@@ -8,6 +8,13 @@ import MobileFilter from "@/components/events/MobileFilter";
 import EventGrid from "@/components/events/EventGrid";
 import { EVENTS_DATA, CATEGORIES, STATUSES } from "@/components/events/constants/events";
 import { Category } from "@/components/events/types/events";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Events | SRIJAN'26",
+  description:
+    "F.E.T.S.U. presents SRIJAN'26, the annual Techno-Management fest of Jadavpur University. Participate in over 50+ events comprising genres of Coding, Gaming, Management, Brainstorming and many more.",
+};
 
 
 export default function EventsPage() {
@@ -19,17 +26,17 @@ export default function EventsPage() {
   const filteredEvents = EVENTS_DATA.filter((event) => {
     const matchesCategory =
       activeCategory === "All" || event.category === activeCategory;
-    
+
     // Assumes your event object has a `status` property mapping to our STATUSES
-    const matchesStatus = 
-      activeStatus === "All" || event.status === activeStatus; 
-    
+    const matchesStatus =
+      activeStatus === "All" || event.status === activeStatus;
+
     const matchesSearch =
       event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       event.tags.some((tag) =>
         tag.toLowerCase().includes(searchQuery.toLowerCase())
       );
-      
+
     return matchesCategory && matchesSearch && matchesStatus;
   });
 
