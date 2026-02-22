@@ -6,13 +6,13 @@ import ShareModal from "./ShareModal";
 import { CLIP_PATH } from "./constants/events";
 
 interface ShareButtonProps {
-  eventId: string;
+  eventSlug: string;
   eventTitle: string;
   isCard?: boolean;
 }
 
 const ShareButton: React.FC<ShareButtonProps> = ({
-  eventId,
+  eventSlug,
   eventTitle,
   isCard,
 }) => {
@@ -30,7 +30,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({
           setOpen(true);
         }}
         style={desktopClipStyle}
-        className={`bg-white hover:bg-white/80 active:scale-[0.98] active:bg-gray-200 transition-all duration-150 text-black font-euclid uppercase font-semibold tracking-wider flex items-center justify-center gap-2 cursor-pointer 
+        className={`bg-white hover:bg-white/80 active:bg-gray-200 transition-all duration-150 text-black font-euclid uppercase font-semibold tracking-wider flex items-center justify-center gap-2 cursor-pointer 
         ${
           isCard
             ? "py-2 w-full text-xs [clip-path:var(--desktop-clip)]"
@@ -44,7 +44,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({
       <ShareModal
         open={open}
         onClose={() => setOpen(false)}
-        eventId={eventId}
+        eventSlug={eventSlug}
         eventTitle={eventTitle}
       />
     </>

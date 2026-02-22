@@ -87,8 +87,6 @@ const getEventParticipantsBySlug = async (
   return users;
 };
 
-export { getAdminEvents, getEventParticipantsBySlug };
-
 export const getAllUsers = async () => {
   const users = await prisma.user.findMany({
     orderBy: { createdAt: "desc" },
@@ -130,3 +128,103 @@ export const getAllMerchandise = async () => {
   });
   return merchandise;
 };
+
+export const searchUsersByEmail = async (query: string) => {
+  if (!query) return [];
+  const users = await prisma.user.findMany({
+    where: {
+      email: {
+        contains: query,
+        mode: "insensitive",
+      },
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+    },
+    take: 10,
+  });
+  return users;
+};
+
+export const getEventAdmins = async (eventId: string) => {
+  const admins = await prisma.eventAdmin.findMany({
+    where: { eventId },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+  return admins.map((a) => a.user);
+};
+
+export const addEventAdmin = async (eventId: string, userId: string) => {
+  const count = await prisma.eventAdmin.count({
+    where: { eventId },
+  });
+
+  if (count >= 3) {
+    throw new Error("Maximum of 3 admins allowed per event");
+  }
+
+  const existing = await prisma.eventAdmin.findUnique({
+    where: {
+      eventId_userId: { eventId, userId },
+    },
+  });
+
+  if (existing) {
+    throw new Error("User is already an admin for this event");
+  }
+
+  await prisma.eventAdmin.create({
+    data: { eventId, userId },
+  });
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
+  });
+
+  if (user && user.role === "USER") {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { role: "ADMIN" },
+    });
+  }
+};
+
+export const removeEventAdmin = async (eventId: string, userId: string) => {
+  await prisma.eventAdmin.delete({
+    where: {
+      eventId_userId: { eventId, userId },
+    },
+  });
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
+  });
+
+  if (user && user.role === "ADMIN") {
+    const adminFor = await prisma.eventAdmin.count({
+      where: { userId },
+    });
+
+    if (adminFor === 0) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { role: "USER" },
+      });
+    }
+  }
+};
+
+export { getAdminEvents, getEventParticipantsBySlug };

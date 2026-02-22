@@ -3,11 +3,18 @@ export type Category =
   | "Coding"
   | "Circuits and Robotics"
   | "Business"
-  | "Brainstroming"
+  | "Brainstorming"
   | "Gaming"
   | "Esports"
-  | "Special Attractions"
-  | "Special Attractions1"
+  | "Specials1"
+  | "Specials2"
+  | "Specials3"
+  | "Specials4"
+  | "Specials5"
+  | "Specials6"
+  | "Specials7"
+  | "Specials8"
+  | "Specials9"
   | "Misc";
 
 export type EventStatus = "All" | "Open" | "Closed" | "Coming Soon";
@@ -20,6 +27,7 @@ export interface Coordinator {
 export interface Event {
   // --- Core Metadata ---
   id: string;
+  slug: string;
   title: string;
   category: Category;
   color: string;

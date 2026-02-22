@@ -110,7 +110,7 @@ const EventCard: React.FC<EventCardProps> = memo(({ event }) => {
       // Cleanup on unmount
       return () => observer.disconnect();
     }
-  }, [event.id]);
+  }, [event.slug]);
 
   // --- OPTIMIZED EVENT HANDLERS ---
   const handleMouseEnter = contextSafe(() => {
@@ -167,13 +167,12 @@ const EventCard: React.FC<EventCardProps> = memo(({ event }) => {
 
         {/* 2. STATUS BADGE */}
         <div
-          className={`font-euclid absolute top-3 right-3 z-20 text-[10px] font-semibold px-2 py-1 rounded uppercase tracking-wider ${
-            event.status === "Open"
-              ? "bg-green-500 text-white"
-              : event.status === "Closed"
-                ? "bg-red-500 text-white"
-                : "bg-yellow-500 text-white"
-          }`}
+          className={`font-euclid absolute top-3 right-3 z-20 text-[10px] font-semibold px-2 py-1 rounded uppercase tracking-wider ${event.status === "Open"
+            ? "bg-green-500 text-white"
+            : event.status === "Closed"
+              ? "bg-red-500 text-white"
+              : "bg-yellow-500 text-white"
+            }`}
         >
           {event.status}
         </div>
@@ -202,7 +201,7 @@ const EventCard: React.FC<EventCardProps> = memo(({ event }) => {
               ref={titleRef}
               className="font-elnath text-2xl font-bold text-white uppercase will-change-[color]"
             >
-              {event.id}{"."} {event.title}
+              {event.title}
             </h3>
           </div>
 
@@ -250,9 +249,9 @@ const EventCard: React.FC<EventCardProps> = memo(({ event }) => {
               />
 
               <Link
-                href={`/events/${event.id}`}
+                href={`/events/${event.slug}`}
                 style={{ clipPath: CLIP_PATH }}
-                className="font-euclid text-xs uppercase font-bold flex items-center justify-center py-2 gap-2 rounded bg-white hover:bg-yellow-300 active:scale-[0.98] duration-200 transition-all text-black"
+                className="font-euclid text-xs uppercase font-bold flex items-center justify-center py-2 gap-2 rounded bg-white hover:bg-yellow-300 active:bg-yellow-500 duration-200 transition-all text-black"
                 title="More Info"
               >
                 <p>More Info</p>
@@ -260,7 +259,7 @@ const EventCard: React.FC<EventCardProps> = memo(({ event }) => {
               </Link>
 
               <ShareButton
-                eventId={event.id}
+                eventSlug={event.slug}
                 eventTitle={event.title}
                 isCard={true}
               />

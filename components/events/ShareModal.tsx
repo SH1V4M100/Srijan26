@@ -19,11 +19,11 @@ import "./events.css";
 interface Props {
   open: boolean;
   onClose: () => void;
-  eventId: string;
+  eventSlug: string;
   eventTitle: string;
 }
 
-const ShareModal: React.FC<Props> = ({ open, onClose, eventId, eventTitle }) => {
+const ShareModal: React.FC<Props> = ({ open, onClose, eventSlug, eventTitle }) => {
   const [copied, setCopied] = useState(false);
   const [canNativeShare, setCanNativeShare] = useState(false);
   const [mounted, setMounted] = useState(false); // Needed for Next.js SSR
@@ -38,7 +38,7 @@ const ShareModal: React.FC<Props> = ({ open, onClose, eventId, eventTitle }) => 
   // If not open OR not mounted on the client yet, render nothing
   if (!open || !mounted) return null;
 
-  const url = `${window.location.origin}/events/${eventId}`;
+  const url = `${window.location.origin}/events/${eventSlug}`;
   const text = `Check out ${eventTitle} at Srijan 2026!`;
 
   const handleCopy = async () => {

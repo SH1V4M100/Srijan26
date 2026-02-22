@@ -1,4 +1,5 @@
 "use client";
+
 import Balls from "@/components/Balls";
 import { Clickable } from "@/components/Clickable";
 import { handleSignin } from "@/services/AuthService";
@@ -8,6 +9,8 @@ import { redirect, useSearchParams } from "next/navigation";
 import React, { Suspense, useState } from "react";
 import toast from "react-hot-toast";
 import z from "zod";
+
+
 
 function Page() {
     return (
@@ -110,7 +113,7 @@ function SignInForm() {
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 48 48"
                     xmlnsXlink="http://www.w3.org/1999/xlink"
-                    style={{display: "block"}} height={24} width={24}
+                    style={{ display: "block" }} height={24} width={24}
                 >
                     <path
                         fill="#EA4335"
