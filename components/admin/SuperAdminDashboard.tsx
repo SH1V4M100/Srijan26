@@ -21,10 +21,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Download, Users, CheckCircle2, XCircle, Trash2, Radio } from "lucide-react";
+import { Download, Users, CheckCircle2, XCircle, Trash2, Radio, ShieldCheck, Search, Check, ChevronsUpDown } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from "@/components/ui/command";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import type { AuthUser } from "@/services/AuthService";
-import mockEvents from "@/data/eventsMock.json";
+import { EVENTS_DATA } from "@/components/events/constants/events";
 
 // Define local types to avoid dependency on @prisma/client which might not be generated
 type Campus = "JADAVPUR" | "SALT_LAKE";
@@ -71,6 +85,19 @@ interface LiveEvent {
     location: string;
 }
 
+interface EventDB {
+    id: string;
+    name: string;
+    slug: string;
+}
+
+interface UserSearch {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+}
+
 export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
     const [users, setUsers] = useState<UserData[]>([]);
     const [merchandise, setMerchandise] = useState<MerchandiseData[]>([]);
@@ -91,11 +118,44 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
     const [merchCampusFilter, setMerchCampusFilter] = useState<string>("all");
     const [merchColorFilter, setMerchColorFilter] = useState<string>("BLACK");
 
+    // Manage Admins State
+    const [dbEvents, setDbEvents] = useState<EventDB[]>([]);
+    const [selectedEventId, setSelectedEventId] = useState<string>("");
+    const [eventSearchOpen, setEventSearchOpen] = useState(false);
+    const [liveEventSearchOpen, setLiveEventSearchOpen] = useState(false);
+    const [userSearchQuery, setUserSearchQuery] = useState("");
+    const [searchedUsers, setSearchedUsers] = useState<UserSearch[]>([]);
+    const [eventAdmins, setEventAdmins] = useState<UserSearch[]>([]);
+    const [searchingUsers, setSearchingUsers] = useState(false);
+    const [loadingAdmins, setLoadingAdmins] = useState(false);
+    const [loadingEvents, setLoadingEvents] = useState(false);
+
     useEffect(() => {
         fetchUsers();
         fetchMerchandise();
         fetchLiveEvents();
+        fetchDbEvents();
     }, []);
+
+    useEffect(() => {
+        if (selectedEventId) {
+            fetchEventAdmins(selectedEventId);
+        } else {
+            setEventAdmins([]);
+        }
+    }, [selectedEventId]);
+
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (userSearchQuery.length >= 5) {
+                searchUsers(userSearchQuery);
+            } else {
+                setSearchedUsers([]);
+            }
+        }, 800);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [userSearchQuery]);
 
     async function fetchUsers() {
         setLoadingUsers(true);
@@ -144,13 +204,13 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
 
     async function handleLiveEventSubmit() {
         if (!newEventSlug || !newEventRound || !newEventLocation) return;
-        const selectedEvent = mockEvents.find(e => e.slug === newEventSlug);
+        const selectedEvent = EVENTS_DATA.find(e => e.link.split("/").pop() === newEventSlug);
         if (!selectedEvent) return;
 
         if (editingEventId) {
-            await updateLiveEvent(selectedEvent.name);
+            await updateLiveEvent(selectedEvent.title);
         } else {
-            await addLiveEvent(selectedEvent.name);
+            await addLiveEvent(selectedEvent.title);
         }
     }
 
@@ -227,6 +287,94 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
         setNewEventSlug("");
         setNewEventRound("");
         setNewEventLocation("");
+    }
+
+    async function fetchDbEvents() {
+        setLoadingEvents(true);
+        try {
+            const res = await fetch("/api/superadmin/admins?action=getEvents");
+            if (res.ok) {
+                const data = await res.json();
+                setDbEvents(data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch db events", error);
+        } finally {
+            setLoadingEvents(false);
+        }
+    }
+
+    async function fetchEventAdmins(eventId: string) {
+        setLoadingAdmins(true);
+        try {
+            const res = await fetch(`/api/superadmin/admins?action=getAdmins&eventId=${eventId}`);
+            if (res.ok) {
+                const data = await res.json();
+                setEventAdmins(data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch event admins", error);
+        } finally {
+            setLoadingAdmins(false);
+        }
+    }
+
+    async function searchUsers(query: string) {
+        setSearchingUsers(true);
+        try {
+            const res = await fetch(`/api/superadmin/admins?action=searchUsers&query=${query}`);
+            if (res.ok) {
+                const data = await res.json();
+                setSearchedUsers(data);
+            }
+        } catch (error) {
+            console.error("Failed to search users", error);
+        } finally {
+            setSearchingUsers(false);
+        }
+    }
+
+    async function handleAddAdmin(targetUserId: string) {
+        if (!selectedEventId) return;
+        try {
+            const res = await fetch("/api/superadmin/admins", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ eventId: selectedEventId, userId: targetUserId })
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                fetchEventAdmins(selectedEventId);
+                setSearchedUsers([]);
+                setUserSearchQuery("");
+                alert("Admin added successfully");
+            } else {
+                alert(data.error || "Failed to add admin");
+            }
+        } catch (error) {
+            console.error("Failed to add admin", error);
+        }
+    }
+
+    async function handleRemoveAdmin(targetUserId: string) {
+        if (!selectedEventId) return;
+        if (!confirm("Are you sure you want to remove this admin?")) return;
+        try {
+            const res = await fetch(`/api/superadmin/admins?eventId=${selectedEventId}&userId=${targetUserId}`, {
+                method: "DELETE"
+            });
+
+            if (res.ok) {
+                fetchEventAdmins(selectedEventId);
+                alert("Admin removed successfully");
+            } else {
+                const data = await res.json();
+                alert(data.error || "Failed to remove admin");
+            }
+        } catch (error) {
+            console.error("Failed to remove admin", error);
+        }
     }
 
     const filteredMerchandise = merchandise.filter((item) => {
@@ -336,6 +484,7 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
                         <TabsTrigger value="users" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Users</TabsTrigger>
                         <TabsTrigger value="merchandise" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Merchandise</TabsTrigger>
                         <TabsTrigger value="live-events" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Live Events</TabsTrigger>
+                        <TabsTrigger value="manage-admins" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Manage Admins</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="users" className="space-y-4">
@@ -519,16 +668,52 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
                                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end bg-slate-50 p-4 rounded-lg border border-slate-200">
                                     <div className="space-y-2">
                                         <label className="text-sm font-medium">Select Event</label>
-                                        <Select value={newEventSlug} onValueChange={setNewEventSlug}>
-                                            <SelectTrigger className="bg-white text-slate-900 border-slate-200">
-                                                <SelectValue placeholder="Choose Event" />
-                                            </SelectTrigger>
-                                            <SelectContent className="bg-white border-slate-200 max-h-60 text-slate-900">
-                                                {mockEvents.map(e => (
-                                                    <SelectItem key={e.slug} value={e.slug} className="text-slate-900 focus:bg-slate-100 focus:text-slate-900">{e.name}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                        <Popover open={liveEventSearchOpen} onOpenChange={setLiveEventSearchOpen}>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant="outline"
+                                                    role="combobox"
+                                                    className="w-full justify-between bg-white text-slate-900 border-slate-200 hover:bg-slate-50"
+                                                >
+                                                    {newEventSlug
+                                                        ? EVENTS_DATA.find((e) => e.link.split("/").pop() === newEventSlug)?.title
+                                                        : "Choose Event..."}
+                                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-full p-0 bg-white border-slate-200">
+                                                <Command className="bg-white">
+                                                    <CommandInput placeholder="Search event..." className="border-none focus:ring-0" />
+                                                    <CommandList>
+                                                        <CommandEmpty>No event found.</CommandEmpty>
+                                                        <CommandGroup className="max-h-60 overflow-y-auto">
+                                                            {EVENTS_DATA.map((e) => {
+                                                                const slug = e.link.split("/").pop() || "";
+                                                                return (
+                                                                    <CommandItem
+                                                                        key={slug}
+                                                                        value={`${e.title} ${slug}`}
+                                                                        onSelect={() => {
+                                                                            setNewEventSlug(slug);
+                                                                            setLiveEventSearchOpen(false);
+                                                                        }}
+                                                                        className="text-slate-900 hover:bg-slate-100 cursor-pointer"
+                                                                    >
+                                                                        <Check
+                                                                            className={cn(
+                                                                                "mr-2 h-4 w-4",
+                                                                                newEventSlug === slug ? "opacity-100" : "opacity-0"
+                                                                            )}
+                                                                        />
+                                                                        {e.title}
+                                                                    </CommandItem>
+                                                                );
+                                                            })}
+                                                        </CommandGroup>
+                                                    </CommandList>
+                                                </Command>
+                                            </PopoverContent>
+                                        </Popover>
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-sm font-medium">Round</label>
@@ -621,6 +806,156 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
                                             )}
                                         </TableBody>
                                     </Table>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="manage-admins" className="space-y-4">
+                        <Card className="border-slate-200 shadow-sm">
+                            <CardHeader>
+                                <CardTitle>Manage Event Admins</CardTitle>
+                                <CardDescription>Assign or remove admins for specific events. Max 3 admins per event.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    {/* Left Side: Select Event and Search User */}
+                                    <div className="space-y-6">
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-medium">Select Event</label>
+                                            <Popover open={eventSearchOpen} onOpenChange={setEventSearchOpen}>
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        variant="outline"
+                                                        role="combobox"
+                                                        aria-expanded={eventSearchOpen}
+                                                        className="w-full justify-between bg-white text-slate-900 border-slate-200 hover:bg-slate-50"
+                                                    >
+                                                        {selectedEventId
+                                                            ? dbEvents.find((event) => event.id === selectedEventId)?.name
+                                                            : "Select event..."}
+                                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-full p-0 bg-white border-slate-200">
+                                                    <Command className="bg-white">
+                                                        <CommandInput placeholder="Search event..." className="border-none focus:ring-0" />
+                                                        <CommandList>
+                                                            <CommandEmpty>No event found.</CommandEmpty>
+                                                            <CommandGroup>
+                                                                {dbEvents.map((event) => (
+                                                                    <CommandItem
+                                                                        key={event.id}
+                                                                        value={`${event.name} ${event.slug}`}
+                                                                        onSelect={() => {
+                                                                            setSelectedEventId(event.id);
+                                                                            setEventSearchOpen(false);
+                                                                        }}
+                                                                        className="text-slate-900 hover:bg-slate-100 cursor-pointer"
+                                                                    >
+                                                                        <Check
+                                                                            className={cn(
+                                                                                "mr-2 h-4 w-4",
+                                                                                selectedEventId === event.id ? "opacity-100" : "opacity-0"
+                                                                            )}
+                                                                        />
+                                                                        {event.name}
+                                                                        <span className="ml-2 text-xs text-slate-400">({event.slug})</span>
+                                                                    </CommandItem>
+                                                                ))}
+                                                            </CommandGroup>
+                                                        </CommandList>
+                                                    </Command>
+                                                </PopoverContent>
+                                            </Popover>
+                                        </div>
+
+                                        {selectedEventId && (
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium">Search User (by email)</label>
+                                                <div className="relative">
+                                                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
+                                                    <Input
+                                                        placeholder="Type at least 3 characters..."
+                                                        className="pl-9 bg-white text-slate-900 border-slate-200"
+                                                        value={userSearchQuery}
+                                                        onChange={(e) => setUserSearchQuery(e.target.value)}
+                                                    />
+                                                </div>
+                                                {searchingUsers && <p className="text-xs text-slate-400">Searching...</p>}
+                                                {searchedUsers.length > 0 && (
+                                                    <div className="mt-2 border border-slate-200 rounded-md bg-white divide-y divide-slate-100 overflow-hidden shadow-sm">
+                                                        {searchedUsers.map((u) => (
+                                                            <div key={u.id} className="p-3 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                                                                <div>
+                                                                    <p className="text-sm font-medium text-slate-900">{u.name}</p>
+                                                                    <p className="text-xs text-slate-500">{u.email}</p>
+                                                                </div>
+                                                                <Button
+                                                                    size="sm"
+                                                                    className="bg-slate-900 text-white hover:bg-slate-800 h-8"
+                                                                    onClick={() => handleAddAdmin(u.id)}
+                                                                    disabled={eventAdmins.some(ea => ea.id === u.id) || eventAdmins.length >= 3}
+                                                                >
+                                                                    {eventAdmins.some(ea => ea.id === u.id) ? "Already Admin" : "Add Admin"}
+                                                                </Button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Right Side: Current Admins */}
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-2 pb-2">
+                                            <ShieldCheck className="h-5 w-5 text-slate-900" />
+                                            <h3 className="font-semibold text-slate-900">
+                                                Current Admins {selectedEventId && `(${eventAdmins.length}/3)`}
+                                            </h3>
+                                        </div>
+                                        <div className="rounded-md border border-slate-200 min-h-[200px] bg-slate-50/50">
+                                            {!selectedEventId ? (
+                                                <div className="h-full flex items-center justify-center text-slate-400 text-sm p-4 text-center">
+                                                    Please select an event to view and manage admins.
+                                                </div>
+                                            ) : loadingAdmins ? (
+                                                <div className="p-4 space-y-3">
+                                                    <Skeleton className="h-12 w-full" />
+                                                    <Skeleton className="h-12 w-full" />
+                                                </div>
+                                            ) : eventAdmins.length === 0 ? (
+                                                <div className="h-full flex items-center justify-center text-slate-400 text-sm p-4 text-center italic">
+                                                    No admins assigned to this event yet.
+                                                </div>
+                                            ) : (
+                                                <div className="divide-y divide-slate-100 bg-white">
+                                                    {eventAdmins.map((admin) => (
+                                                        <div key={admin.id} className="p-4 flex items-center justify-between">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold text-xs">
+                                                                    {admin.name.charAt(0)}
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-sm font-medium text-slate-900">{admin.name}</p>
+                                                                    <p className="text-xs text-slate-500">{admin.email}</p>
+                                                                </div>
+                                                            </div>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                                onClick={() => handleRemoveAdmin(admin.id)}
+                                                            >
+                                                                <Trash2 className="h-4 w-4" />
+                                                            </Button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             </CardContent>
                         </Card>

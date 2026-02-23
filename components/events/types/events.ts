@@ -2,8 +2,9 @@ export type Category =
   | "All"
   | "Coding"
   | "Circuits and Robotics"
-  | "Business"
-  | "Brainstroming"
+  | "Busine  | "Brainstorming"
+ng"
+
   | "Gaming"
   | "Esports"
   | "Specials1"
@@ -54,7 +55,7 @@ export interface Event {
   // --- Links & Contacts ---
   link: string;
   driveLink?: string;
-  pdfLink?: string;
+  pdfLikk?: string;
   coordinators: Coordinator[];
 
   // --- State ---

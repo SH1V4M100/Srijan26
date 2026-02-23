@@ -97,7 +97,7 @@ const EventCardTouch: React.FC<EventCardTouchProps> = memo(({ event }) => {
           stagger: 0.1,
           transformOrigin: "right center",
           force3D: true,
-          paused: true, 
+          paused: true,
         },
       );
 
@@ -119,7 +119,7 @@ const EventCardTouch: React.FC<EventCardTouchProps> = memo(({ event }) => {
       // Cleanup on unmount
       return () => observer.disconnect();
     }
-  }, [event.id]);
+  }, [event.slug]);
 
   // --- OPTIMIZED EVENT HANDLERS ---
   const toggleCard = contextSafe((e: React.MouseEvent) => {
@@ -175,13 +175,12 @@ const EventCardTouch: React.FC<EventCardTouchProps> = memo(({ event }) => {
 
         {/* 2. STATUS BADGE */}
         <div
-          className={`font-euclid absolute top-3 right-3 z-20 text-[10px] font-semibold px-2 py-1 rounded uppercase tracking-wider ${
-            event.status === "Open"
-              ? "bg-green-500 text-white"
-              : event.status === "Closed"
-                ? "bg-red-500 text-white"
-                : "bg-yellow-500 text-white"
-          }`}
+          className={`font-euclid absolute top-3 right-3 z-20 text-[10px] font-semibold px-2 py-1 rounded uppercase tracking-wider ${event.status === "Open"
+            ? "bg-green-500 text-white"
+            : event.status === "Closed"
+              ? "bg-red-500 text-white"
+              : "bg-yellow-500 text-white"
+            }`}
         >
           {event.status}
         </div>
@@ -208,7 +207,7 @@ const EventCardTouch: React.FC<EventCardTouchProps> = memo(({ event }) => {
               ref={titleRef}
               className="font-elnath text-2xl font-bold text-white uppercase will-change-[color] pointer-events-auto"
             >
-              {event.id}{"."} {event.title}
+              {event.title}
             </h3>
           </div>
 

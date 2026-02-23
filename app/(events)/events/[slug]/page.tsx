@@ -1,18 +1,20 @@
+import { redirect } from "next/navigation";
 import { Metadata } from "next";
-import { EVENTS_DATA } from "@/components/events/constants/events"; 
+import { EVENTS_DATA } from "@/components/events/constants/events";
 import EventDetailsClient from "@/components/events/EventDetailsClient";
 
 type Props = {
-  // 1. In Next.js 15, params is a Promise! Now looking for 'slug'
-  params: Promise<{ slug: string }>; 
+  params: Promise<{ slug: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  // 2. You must await the params before reading the slug
-  const resolvedParams = await params;
-  
-  // Find the event using the new slug property
-  const event = EVENTS_DATA.find((e) => e.slug === resolvedParams.slug);
+  const { slug } = await params;
+  const event = EVENTS_DATA.find(
+    (e) =>
+      e.slug === slug ||
+      e.slug.toLowerCase() === slug.toLowerCase() ||
+      e.id === slug,
+  );
 
   if (!event) {
     return {
@@ -21,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://yourwebsite.com";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://srijanju.in";
 
   return {
     title: `${event.title} | Srijan 2026`,
@@ -29,12 +31,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: event.title,
       description: event.description,
-      // Update the canonical URL to use the slug
       url: `${baseUrl}/events/${event.slug}`,
       siteName: "Srijan 2026",
       images: [
         {
-          url: event.image, 
+          url: event.image,
           width: 595,
           height: 842,
           alt: `${event.title} Poster`,
@@ -53,15 +54,29 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 // 3. Make sure your default export is also an async function
 export default async function EventDetailsPage({ params }: Props) {
-  // 4. Await the params here too!
-  const resolvedParams = await params;
-  
-  // Find the event using the new slug property
-  const event = EVENTS_DATA.find((e) => e.slug === resolvedParams.slug);
+  const { slug } = await params;
 
-  if (!event) {
-    return <div className="text-white text-center mt-20">Event not found</div>;
+  // 1. Logical precedence:
+  // a) Exact slug match -> render
+  // b) Case-insensitive slug match -> redirect
+  // c) ID match -> redirect
+
+  const exactEvent = EVENTS_DATA.find((e) => e.slug === slug);
+  if (exactEvent) {
+    return <EventDetailsClient event={exactEvent} />;
   }
 
-  return <EventDetailsClient event={event} />;
+  const caseInsensitiveEvent = EVENTS_DATA.find(
+    (e) => e.slug.toLowerCase() === slug.toLowerCase(),
+  );
+  if (caseInsensitiveEvent) {
+    redirect(`/events/${caseInsensitiveEvent.slug}`);
+  }
+
+  const idEvent = EVENTS_DATA.find((e) => e.id === slug);
+  if (idEvent) {
+    redirect(`/events/${idEvent.slug}`);
+  }
+
+  return <div className="text-white text-center mt-20">Event not found</div>;
 }
